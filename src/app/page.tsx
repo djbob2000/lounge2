@@ -1,17 +1,22 @@
+import { asc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { photos } from "@/db/schema";
 import Link from "next/link";
 import { HomeSlider } from "@/components/home-slider";
-import { ModeToggle } from "@/components/mode-toggle";
 import { Logo } from "@/components/logo";
+import { ModeToggle } from "@/components/mode-toggle";
 
-const MOCKED_SLIDER_IMAGES = [
-  {
-    id: "1",
-    url: "https://lh3.googleusercontent.com/aida-public/AB6AXuAct9NzyqR8elUQoRQaqyorGY2VkoBNlvvWJF4x00C96QOgCORf5AuwGrhXjTni1JiLzYh55TlDUa89ilc085mS1IN9l8zXKhDF5hQZ4VbhKLg29i69woxZcFqMfkTbaQYsiKNvOTuI4ZWXtl_tuIaiOxKjQDDchD3f7jfHJ1FbLjWfN9NM8pA4Dyv9D3LBEDXr2PDqUzVRcVk_tae7UxWtIXEH5eJrtzsfazjV_pgW7Aug32g53hJG5vXKHVFi9dv3AgetR2_ZC8o",
-    title: "Capturing Life's Essence",
-  },
-];
+export default async function Home() {
+  const sliderPhotos = await db.query.photos.findMany({
+    where: eq(photos.isSliderImage, true),
+    orderBy: [asc(photos.position)],
+  });
 
-export default function Home() {
+  const formattedImages = sliderPhotos.map((p) => ({
+    id: p.id,
+    url: p.url,
+    title: null,
+  }));
   return (
     <div className="bg-background text-foreground font-display min-h-screen transition-colors duration-700 ease-in-out">
       {/* Header Section: Logo and Navigation */}
@@ -66,7 +71,7 @@ export default function Home() {
 
       {/* Hero Slider Section */}
       <main className="w-full relative z-10">
-        <HomeSlider images={MOCKED_SLIDER_IMAGES} />
+        <HomeSlider images={formattedImages} />
 
         {/* Featured Collections Grid */}
         <section className="max-w-7xl mx-auto px-6 py-24">

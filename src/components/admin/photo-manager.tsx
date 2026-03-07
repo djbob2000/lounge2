@@ -17,9 +17,15 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripHorizontal, Image as ImageIcon, Trash2, UploadCloud } from "lucide-react";
+import { GripHorizontal, Image as ImageIcon, Trash2, UploadCloud, Star } from "lucide-react";
 import { useState, useTransition } from "react";
-import { deletePhotoDb, reorderPhotos, savePhotoToDb, setAlbumCover } from "@/actions/photos";
+import {
+  deletePhotoDb,
+  reorderPhotos,
+  savePhotoToDb,
+  setAlbumCover,
+  togglePhotoSlider,
+} from "@/actions/photos";
 import { getPresignedUploadUrl } from "@/actions/upload";
 import { Button } from "@/components/ui/button";
 
@@ -28,17 +34,20 @@ type Photo = {
   url: string;
   r2Key: string;
   position: number;
+  isSliderImage: boolean;
 };
 
 function SortablePhoto({
   photo,
   onDelete,
   onSetCover,
+  onToggleSlider,
   isCover,
 }: {
   photo: Photo;
   onDelete: (p: Photo) => void;
   onSetCover: (p: Photo) => void;
+  onToggleSlider: (p: Photo) => void;
   isCover: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -54,7 +63,7 @@ function SortablePhoto({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group relative aspect-square overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 border-2 ${
+      className={`group relative aspect-square overflow-hidden rounded-xl bg-muted border-2 ${
         isCover
           ? "border-primary"
           : isDragging
@@ -73,6 +82,11 @@ function SortablePhoto({
           Cover
         </div>
       )}
+      {photo.isSliderImage && (
+        <div className="absolute top-2 left-16 bg-amber-400 text-white text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded flex items-center gap-1">
+          <Star className="w-3 h-3" fill="currentColor" /> Slider
+        </div>
+      )}
 
       {/* Drag Handle */}
       <button
@@ -86,22 +100,29 @@ function SortablePhoto({
       </button>
 
       {/* Actions */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 flex items-center justify-between gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 duration-300">
+      <div className="absolute bottom-0 left-0 right-0 p-2 flex items-center justify-between gap-1 opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 duration-300">
         <button
           type="button"
           onClick={() => onSetCover(photo)}
-          className="flex-1 text-xs font-semibold py-1.5 bg-white/90 text-slate-900 rounded-lg hover:bg-white transition-colors flex items-center justify-center gap-1"
-          title="Set as Album Cover"
-          aria-label="Set as album cover"
+          className="flex-1 text-xs font-semibold py-1.5 bg-background/90 text-foreground rounded-lg hover:bg-background transition-colors flex items-center justify-center gap-1"
         >
           <ImageIcon className="w-3 h-3" /> Cover
         </button>
         <button
           type="button"
+          onClick={() => onToggleSlider(photo)}
+          className={`flex-1 text-xs font-semibold py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1 ${
+            photo.isSliderImage
+              ? "bg-amber-400/90 text-white hover:bg-amber-400"
+              : "bg-background/90 text-foreground hover:bg-background"
+          }`}
+        >
+          <Star className="w-3 h-3" fill={photo.isSliderImage ? "currentColor" : "none"} /> Slider
+        </button>
+        <button
+          type="button"
           onClick={() => onDelete(photo)}
-          className="p-1.5 bg-red-500/90 text-white rounded-lg hover:bg-red-500 transition-colors"
-          title="Delete Photo"
-          aria-label="Delete photo"
+          className="p-1.5 bg-destructive/90 text-destructive-foreground rounded-lg hover:bg-destructive transition-colors"
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -124,6 +145,7 @@ export function PhotoManager({
   const [, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -152,8 +174,7 @@ export function PhotoManager({
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+  const processFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
@@ -197,6 +218,28 @@ export function PhotoManager({
     window.location.reload();
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    processFiles(event.target.files);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(e.dataTransfer.files);
+    }
+  };
+
   const handleDelete = async (photo: Photo) => {
     if (confirm("Are you sure you want to delete this photo forever?")) {
       startTransition(async () => {
@@ -214,12 +257,21 @@ export function PhotoManager({
     });
   };
 
+  const handleToggleSlider = async (photo: Photo) => {
+    startTransition(async () => {
+      await togglePhotoSlider(photo.id, !photo.isSliderImage, albumId);
+      setPhotos((prev) =>
+        prev.map((p) => (p.id === photo.id ? { ...p, isSliderImage: !p.isSliderImage } : p)),
+      );
+    });
+  };
+
   return (
     <>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h3 className="text-2xl font-bold">Manage Photos</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Drag to reorder photos. High quality uploads recommended.
           </p>
         </div>
@@ -260,11 +312,29 @@ export function PhotoManager({
       </div>
 
       {photos.length === 0 ? (
-        <div className="mt-8 flex flex-col items-center justify-center py-24 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-800/20 text-slate-400">
-          <ImageIcon className="w-12 h-12 mb-4 opacity-50" />
-          <p className="text-sm font-medium">No photos in this album yet</p>
-          <p className="text-xs mt-1">Upload memories to get started</p>
-        </div>
+        <label
+          htmlFor="photos-upload"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`mt-8 flex flex-col items-center justify-center py-24 border-2 border-dashed rounded-2xl cursor-pointer transition-colors ${
+            isDragOver
+              ? "border-primary bg-primary/5"
+              : "border-border bg-muted/20 text-muted-foreground hover:bg-muted/40"
+          }`}
+        >
+          <ImageIcon
+            className={`w-12 h-12 mb-4 transition-opacity ${isDragOver ? "opacity-100 text-primary" : "opacity-50"}`}
+          />
+          <p className="text-sm font-medium">
+            {isDragOver ? "Drop photos here" : "No photos in this album yet"}
+          </p>
+          <p className="text-xs mt-1">
+            {isDragOver
+              ? "Release to start uploading"
+              : "Upload or drag & drop memories to get started"}
+          </p>
+        </label>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -276,6 +346,7 @@ export function PhotoManager({
                   isCover={photo.r2Key === coverKey}
                   onDelete={handleDelete}
                   onSetCover={handleSetCover}
+                  onToggleSlider={handleToggleSlider}
                 />
               ))}
             </SortableContext>

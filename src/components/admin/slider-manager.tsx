@@ -11,50 +11,28 @@ import {
 } from "@dnd-kit/core";
 import {
   arrayMove,
-  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
+  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripHorizontal, Trash2, Type, UploadCloud } from "lucide-react";
+import { GripVertical, X } from "lucide-react";
+import Image from "next/image";
 import { useState, useTransition } from "react";
-import {
-  addSliderPhoto,
-  removeSliderPhoto,
-  reorderSliderPhotos,
-  updateSliderTitle,
-} from "@/actions/home-slider";
-import { getPresignedUploadUrl } from "@/actions/upload";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 
-type SliderImage = {
+import { reorderSliderPhotos, togglePhotoSlider } from "@/actions/photos";
+
+type Photo = {
   id: string;
   url: string;
   r2Key: string;
-  title: string | null;
-  position: number;
+  sliderPosition: number;
 };
 
-function SortableSliderImage({
-  image,
-  onDelete,
-  onEditTitle,
-}: {
-  image: SliderImage;
-  onDelete: (i: SliderImage) => void;
-  onEditTitle: (i: SliderImage) => void;
-}) {
+function SortableSliderItem({ photo, onRemove }: { photo: Photo; onRemove: (id: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: image.id,
+    id: photo.id,
   });
 
   const style = {
@@ -66,65 +44,49 @@ function SortableSliderImage({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group relative aspect-video overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 border-2 ${
-        isDragging ? "border-primary shadow-xl z-10 scale-105" : "border-transparent"
-      } transition-all`}
+      className={`group flex items-center justify-between p-4 bg-card border ${
+        isDragging
+          ? "border-primary shadow-lg z-10 relative"
+          : "border-border hover:border-primary/50"
+      } rounded-xl transition-all`}
     >
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${image.url}')` }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/0 opacity-60 transition-opacity duration-300" />
-
-      {/* Title preview */}
-      <div className="absolute bottom-2 left-4 right-4 text-white text-sm font-bold truncate drop-shadow-md">
-        {image.title || "No text overlay"}
-      </div>
-
-      {/* Drag Handle */}
-      <button
-        type="button"
-        {...attributes}
-        {...listeners}
-        className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity touch-none cursor-move"
-        aria-label="Drag to reorder"
-      >
-        <GripHorizontal className="w-4 h-4" />
-      </button>
-
-      {/* Actions */}
-      <div className="absolute top-2 left-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-4">
         <button
           type="button"
-          onClick={() => onEditTitle(image)}
-          className="p-1.5 bg-white/90 text-slate-900 rounded-lg hover:bg-white transition-colors"
-          title="Edit Title Overlay"
-          aria-label="Edit title overlay"
+          {...attributes}
+          {...listeners}
+          className="cursor-move text-muted-foreground/50 hover:text-primary transition-colors touch-none"
+          aria-label="Drag to reorder"
         >
-          <Type className="w-4 h-4" />
+          <GripVertical className="w-5 h-5" />
         </button>
+        <div className="relative w-24 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+          <Image src={photo.url} alt="Slider photo" fill className="object-cover" sizes="96px" />
+        </div>
+        <div className="hidden sm:block">
+          <p className="text-xs text-muted-foreground font-mono truncate max-w-[200px]">
+            {photo.id.split("-")[0]}...
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           type="button"
-          onClick={() => onDelete(image)}
-          className="p-1.5 bg-red-500/90 text-white rounded-lg hover:bg-red-500 transition-colors"
-          title="Remove from Slider"
+          onClick={() => onRemove(photo.id)}
+          className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
           aria-label="Remove from slider"
+          title="Remove from slider"
         >
-          <Trash2 className="w-4 h-4" />
+          <X className="w-5 h-5" />
         </button>
       </div>
     </div>
   );
 }
 
-export function SliderManager({ initialImages }: { initialImages: SliderImage[] }) {
-  const [images, setImages] = useState(initialImages);
-  const [isPending, startTransition] = useTransition();
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-
-  const [editTarget, setEditTarget] = useState<SliderImage | null>(null);
-  const [titleInput, setTitleInput] = useState("");
+export function SliderManager({ initialPhotos }: { initialPhotos: Photo[] }) {
+  const [photos, setPhotos] = useState(initialPhotos);
+  const [, startTransition] = useTransition();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -136,75 +98,33 @@ export function SliderManager({ initialImages }: { initialImages: SliderImage[] 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      const oldIndex = images.findIndex((i) => i.id === active.id);
-      const newIndex = images.findIndex((i) => i.id === over.id);
+      const oldIndex = photos.findIndex((p) => p.id === active.id);
+      const newIndex = photos.findIndex((p) => p.id === over.id);
 
-      const newItems = arrayMove(images, oldIndex, newIndex);
+      const newItems = arrayMove(photos, oldIndex, newIndex);
       const updates = newItems.map((item, index) => ({
         id: item.id,
-        position: index,
+        sliderPosition: index,
       }));
 
-      setImages(newItems.map((item, index) => ({ ...item, position: index })));
+      // Update locally first
+      setPhotos(newItems.map((item, index) => ({ ...item, sliderPosition: index })));
 
+      // Save to DB
       startTransition(async () => {
         await reorderSliderPhotos(updates);
       });
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+  const handleRemove = (id: string) => {
+    // Remove locally
+    setPhotos((prev) => prev.filter((p) => p.id !== id));
 
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    const totalFiles = files.length;
-    let completed = 0;
-
-    for (let i = 0; i < totalFiles; i++) {
-      const file = files[i];
-      try {
-        const res = await getPresignedUploadUrl(file.name, file.type);
-        if (!res.success || !res.presignedUrl || !res.fileUrl || !res.key)
-          throw new Error("URL Gen failed");
-
-        await fetch(res.presignedUrl, {
-          method: "PUT",
-          headers: { "Content-Type": file.type },
-          body: file,
-        });
-
-        await addSliderPhoto(res.fileUrl, res.key);
-
-        completed++;
-        setUploadProgress(Math.round((completed / totalFiles) * 100));
-      } catch (err) {
-        console.error("Upload failed for file:", file.name, err);
-      }
-    }
-
-    window.location.reload();
-  };
-
-  const handleDelete = async (image: SliderImage) => {
-    if (confirm("Remove this image from the home slider?")) {
-      startTransition(async () => {
-        await removeSliderPhoto(image.id, image.r2Key);
-        setImages((prev) => prev.filter((i) => i.id !== image.id));
-      });
-    }
-  };
-
-  const handleSaveTitle = async () => {
-    if (!editTarget) return;
+    // Save to DB (set isSliderImage to false)
     startTransition(async () => {
-      await updateSliderTitle(editTarget.id, titleInput);
-      setImages((prev) =>
-        prev.map((i) => (i.id === editTarget.id ? { ...i, title: titleInput } : i)),
-      );
-      setEditTarget(null);
+      // we don't need albumId here, togglePhotoSlider makes it optional
+      await togglePhotoSlider(id, false);
     });
   };
 
@@ -212,98 +132,32 @@ export function SliderManager({ initialImages }: { initialImages: SliderImage[] 
     <>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h3 className="text-2xl font-bold">Home Page Slider</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            These images will appear full screen on the home page. Ideal ratio is 16:9 or similar
-            cinematic crops.
+          <h3 className="text-2xl font-bold">Slider Images</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Drag and drop to reorder images on the homepage slider. Click the X to hide an image
+            from the slider (it will remain in its album).
           </p>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            id="slider-upload"
-            className="hidden"
-            onChange={handleFileUpload}
-            disabled={isUploading}
-          />
-          <Button
-            type="button"
-            disabled={isUploading}
-            className="cursor-pointer relative overflow-hidden"
-            onClick={() => document.getElementById("slider-upload")?.click()}
-          >
-            <div className="flex items-center gap-2">
-              {isUploading ? (
-                <span>Uploading... {uploadProgress}%</span>
-              ) : (
-                <>
-                  <UploadCloud className="w-5 h-5" /> Add Images
-                </>
-              )}
-              {isUploading && (
-                <div
-                  className="absolute bottom-0 left-0 h-1 bg-white/30 transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              )}
-            </div>
-          </Button>
         </div>
       </div>
 
-      <Dialog
-        open={!!editTarget}
-        onOpenChange={(open) => {
-          if (!open) setEditTarget(null);
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Image Title</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-slate-500 mb-2">
-              This text will be overlayed on the image. Leave blank for no text.
-            </p>
-            <Input
-              placeholder="e.g. Capturing Life's Essence"
-              value={titleInput}
-              onChange={(e) => setTitleInput(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button onClick={handleSaveTitle} disabled={isPending}>
-              Save
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {images.length === 0 ? (
-        <div className="mt-8 flex flex-col items-center justify-center py-24 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-800/20 text-slate-400">
-          <p className="text-sm font-medium">No slider images yet</p>
-        </div>
-      ) : (
+      <div className="space-y-3">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <SortableContext items={images.map((i) => i.id)} strategy={rectSortingStrategy}>
-              {images.map((image) => (
-                <SortableSliderImage
-                  key={image.id}
-                  image={image}
-                  onDelete={handleDelete}
-                  onEditTitle={(i) => {
-                    setEditTarget(i);
-                    setTitleInput(i.title || "");
-                  }}
-                />
-              ))}
-            </SortableContext>
-          </div>
+          <SortableContext items={photos.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+            {photos.map((photo) => (
+              <SortableSliderItem key={photo.id} photo={photo} onRemove={handleRemove} />
+            ))}
+          </SortableContext>
         </DndContext>
+      </div>
+
+      {photos.length === 0 && (
+        <div className="mt-8 flex flex-col items-center justify-center p-12 border-2 border-dashed border-border rounded-xl bg-muted/20">
+          <p className="text-muted-foreground text-sm font-medium mb-2">No slider images found</p>
+          <p className="text-muted-foreground/60 text-xs text-center max-w-sm">
+            Go to any album and click the "Slider" star icon on a photo to add it to the homepage
+            slider.
+          </p>
+        </div>
       )}
     </>
   );

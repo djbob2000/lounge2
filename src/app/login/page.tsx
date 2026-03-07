@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
 import { Logo } from "@/components/logo";
+import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -33,31 +33,26 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground font-display p-6">
       <div className="w-full max-w-sm flex flex-col items-center mb-10">
         <div className="text-primary mb-6 transition-transform hover:scale-110 duration-500">
           <Logo className="w-16 h-16" />
         </div>
         <h1 className="text-2xl font-black tracking-[0.2em]">Elena Marinych</h1>
         <div className="h-[2px] w-12 bg-primary/40 mt-2 mb-4"></div>
-        <p className="text-xs tracking-widest uppercase text-slate-500 dark:text-slate-400 text-center font-medium opacity-80">
+        <p className="text-xs tracking-widest uppercase text-muted-foreground text-center font-medium opacity-80">
           Management Console
         </p>
       </div>
 
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 p-8">
+      <div className="w-full max-w-md bg-card rounded-2xl shadow-xl shadow-border/50 dark:shadow-none border border-border p-8">
         <form onSubmit={handleLogin} className="space-y-6">
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/10 dark:text-red-400 rounded-lg">
-              {error}
-            </div>
+            <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-lg">{error}</div>
           )}
 
           <div className="space-y-2">
-            <label
-              htmlFor="email"
-              className="text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-300"
-            >
+            <label htmlFor="email" className="text-sm font-semibold tracking-wide text-foreground">
               Email Address
             </label>
             <input
@@ -65,7 +60,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm outline-none"
+              className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm outline-none"
               placeholder="admin@example.com"
               required
             />
@@ -74,7 +69,7 @@ export default function LoginPage() {
           <div className="space-y-2">
             <label
               htmlFor="password"
-              className="text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-300"
+              className="text-sm font-semibold tracking-wide text-foreground"
             >
               Password
             </label>
@@ -83,7 +78,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm outline-none"
+              className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm outline-none"
               placeholder="••••••••"
               required
             />

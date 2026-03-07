@@ -10,7 +10,7 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div className="w-full">
-      <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-4 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+      <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-4 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="flex items-center gap-4">
           <h2 className="text-lg font-semibold tracking-tight">Categories Management</h2>
         </div>

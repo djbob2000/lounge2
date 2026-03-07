@@ -25,11 +25,11 @@ export default async function AdminAlbumPage(props: { params: Promise<{ id: stri
 
   return (
     <div className="w-full">
-      <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-4 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+      <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-4 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="flex items-center gap-4">
           <Link
             href="/admin/albums"
-            className="p-2 -ml-2 text-slate-400 hover:text-primary transition-colors"
+            className="p-2 -ml-2 text-muted-foreground hover:text-primary transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>

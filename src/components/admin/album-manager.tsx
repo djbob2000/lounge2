@@ -20,11 +20,12 @@ import { CSS } from "@dnd-kit/utilities";
 import { Edit, Eye, EyeOff, GripVertical, Image as ImageIcon, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import slugify from "slugify";
 import {
   createAlbum,
   deleteAlbum,
   reorderAlbums,
-  toggleAlbumDraft,
+  toggleAlbumHidden,
   updateAlbum,
 } from "@/actions/albums";
 import { Button } from "@/components/ui/button";
@@ -44,7 +45,7 @@ type Album = {
   title: string;
   slug: string;
   position: number;
-  isDraft: boolean;
+  isHidden: boolean;
   coverImageUrl: string | null;
 };
 
@@ -77,10 +78,10 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group flex items-center justify-between p-4 bg-white dark:bg-slate-800 border ${
+      className={`group flex items-center justify-between p-4 bg-card border ${
         isDragging
           ? "border-primary shadow-lg z-10 relative"
-          : "border-slate-200 dark:border-slate-700 hover:border-primary/50"
+          : "border-border hover:border-primary/50"
       } rounded-xl transition-all`}
     >
       <div className="flex items-center gap-4">
@@ -88,11 +89,11 @@ function SortableItem({
           type="button"
           {...attributes}
           {...listeners}
-          className="cursor-move text-slate-300 dark:text-slate-600 hover:text-primary transition-colors touch-none"
+          className="cursor-move text-muted-foreground/50 hover:text-primary transition-colors touch-none"
         >
           <GripVertical className="w-5 h-5" />
         </button>
-        <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 overflow-hidden shrink-0">
+        <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-muted-foreground overflow-hidden shrink-0">
           {album.coverImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -107,19 +108,19 @@ function SortableItem({
         <div>
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-bold">{album.title}</h4>
-            {album.isDraft && (
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                Draft
+            {album.isHidden && (
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-muted text-muted-foreground">
+                Hidden
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">/{album.slug}</p>
+          <p className="text-xs text-muted-foreground">/{album.slug}</p>
         </div>
       </div>
       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <Link
           href={`/admin/albums/${album.id}`}
-          className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+          className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
           title="Manage Photos"
         >
           <ImageIcon className="w-5 h-5" />
@@ -127,15 +128,15 @@ function SortableItem({
         <button
           type="button"
           onClick={() => onToggle(album)}
-          className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-700/50 rounded-lg transition-all"
-          title={album.isDraft ? "Publish" : "Move to Drafts"}
+          className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all"
+          title={album.isHidden ? "Show Album" : "Hide Album"}
         >
-          {album.isDraft ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+          {album.isHidden ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
         </button>
         <button
           type="button"
           onClick={() => onEdit(album)}
-          className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+          className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
           title="Edit Album"
         >
           <Edit className="w-5 h-5" />
@@ -143,7 +144,7 @@ function SortableItem({
         <button
           type="button"
           onClick={() => onDelete(album)}
-          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+          className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
           title="Delete Album"
         >
           <Trash2 className="w-5 h-5" />
@@ -213,7 +214,10 @@ export function AlbumManager({
 
   const handleCreate = async () => {
     startTransition(async () => {
-      await createAlbum(formData.categoryId, formData.title, formData.slug);
+      const res = await createAlbum(formData.categoryId, formData.title, formData.slug);
+      if (res.success && res.album) {
+        setAlbums((prev) => [...prev, res.album as Album]);
+      }
       setIsCreateOpen(false);
       setFormData({ title: "", slug: "", categoryId: selectedCategory });
     });
@@ -228,10 +232,12 @@ export function AlbumManager({
     });
   };
 
-  const handleToggleDraft = async (album: Album) => {
+  const handleToggleHidden = async (album: Album) => {
     startTransition(async () => {
-      await toggleAlbumDraft(album.id, !album.isDraft);
-      setAlbums((prev) => prev.map((a) => (a.id === album.id ? { ...a, isDraft: !a.isDraft } : a)));
+      await toggleAlbumHidden(album.id, !album.isHidden);
+      setAlbums((prev) =>
+        prev.map((a) => (a.id === album.id ? { ...a, isHidden: !a.isHidden } : a)),
+      );
     });
   };
 
@@ -255,7 +261,7 @@ export function AlbumManager({
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium outline-none focus:ring-2 focus:ring-primary/50"
+            className="px-4 py-2 bg-background border border-border rounded-lg text-sm font-medium outline-none focus:ring-2 focus:ring-primary/50"
           >
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
@@ -281,8 +287,9 @@ export function AlbumManager({
           <DialogTrigger
             render={
               <Button
+                variant="outline"
                 disabled={!selectedCategory}
-                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm text-slate-900 dark:text-slate-100"
+                className="flex items-center gap-2 shadow-sm"
               />
             }
           >
@@ -300,7 +307,7 @@ export function AlbumManager({
                   setFormData({
                     ...formData,
                     title: e.target.value,
-                    slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+                    slug: slugify(e.target.value, { lower: true, strict: true }),
                   })
                 }
               />
@@ -337,7 +344,7 @@ export function AlbumManager({
             <select
               value={formData.categoryId}
               onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-              className="px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium outline-none"
+              className="px-4 py-2 bg-background border border-border rounded-lg text-sm font-medium outline-none"
             >
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -366,11 +373,11 @@ export function AlbumManager({
 
       <div className="space-y-3">
         {categories.length === 0 ? (
-          <div className="mt-8 flex items-center justify-center p-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 text-slate-400 text-sm">
+          <div className="mt-8 flex items-center justify-center p-6 border-2 border-dashed border-border rounded-xl bg-muted/20 text-muted-foreground text-sm">
             Create a Category first before creating albums.
           </div>
         ) : filteredAlbums.length === 0 ? (
-          <div className="mt-8 flex items-center justify-center p-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 text-slate-400 text-sm">
+          <div className="mt-8 flex items-center justify-center p-6 border-2 border-dashed border-border rounded-xl bg-muted/20 text-muted-foreground text-sm">
             No albums in this category. Create one to get started.
           </div>
         ) : (
@@ -396,7 +403,7 @@ export function AlbumManager({
                     });
                     setIsEditOpen(true);
                   }}
-                  onToggle={handleToggleDraft}
+                  onToggle={handleToggleHidden}
                   onDelete={handleDelete}
                 />
               ))}

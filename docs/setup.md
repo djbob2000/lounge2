@@ -32,13 +32,16 @@ npx drizzle-kit push
 
 ## 3. Creating the First Admin
 
-To secure the admin panel, public registration is **disabled**.
-To create the first admin user:
+To secure the admin panel, public registration is **disabled** by default in the UI. 
+To create your first administrator account:
 
-1. Temporarily open `src/lib/auth.ts`.
-2. Find `emailAndPassword: { enabled: true }` and add `requireEmailVerification: false`.
-3. Create a temporary script or temporarily allow signup via a custom form/curl command calling BetterAuth `signUpEmail`.
-   Alternatively, you can manually insert the admin user into the Postgres `user` and `account` tables using a secure hashed password.
+1. Ensure your database is running and migrations are applied.
+2. Visit `http://localhost:3000/setup` in your browser.
+3. This page is only accessible if no users exist in the database.
+4. Fill out the form to create your admin account.
+5. Once created, you will be redirected to the admin dashboard.
+
+**Note:** If you already have a user in the database, the `/setup` page will automatically redirect you to `/login`.
 
 ## 4. Running the Development Server
 

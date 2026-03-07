@@ -79,3 +79,36 @@ export async function reorderPhotos(updates: { id: string; position: number }[],
     return { success: false, error: "Failed to reorder photos" };
   }
 }
+
+export async function reorderSliderPhotos(updates: { id: string; sliderPosition: number }[]) {
+  try {
+    for (const update of updates) {
+      await db
+        .update(photos)
+        .set({ sliderPosition: update.sliderPosition })
+        .where(eq(photos.id, update.id));
+    }
+    revalidatePath("/admin/slider");
+    revalidatePath("/");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to reorder slider photos" };
+  }
+}
+
+export async function togglePhotoSlider(id: string, isSliderImage: boolean, albumId?: string) {
+  try {
+    // When adding to slider, we might want to put them at the end.
+    // However, just defaulting to 0 or whatever current sliderPosition is fine
+    // because we can reorder them in the slider manager.
+    await db.update(photos).set({ isSliderImage }).where(eq(photos.id, id));
+    if (albumId) {
+      revalidatePath(`/admin/albums/${albumId}`);
+    }
+    revalidatePath("/admin/slider");
+    revalidatePath("/");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to toggle slider image status" };
+  }
+}

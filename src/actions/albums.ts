@@ -11,15 +11,18 @@ export async function createAlbum(categoryId: string, title: string, slug: strin
     const existing = await db.query.albums.findMany({
       where: eq(albums.categoryId, categoryId),
     });
-    await db.insert(albums).values({
-      categoryId,
-      title,
-      slug,
-      position: existing.length,
-    });
+    const [newAlbum] = await db
+      .insert(albums)
+      .values({
+        categoryId,
+        title,
+        slug,
+        position: existing.length,
+      })
+      .returning();
     revalidatePath("/admin/albums");
     revalidatePath("/", "layout");
-    return { success: true };
+    return { success: true, album: newAlbum };
   } catch {
     return { success: false, error: "Failed to create album or slug exists" };
   }
@@ -36,14 +39,14 @@ export async function updateAlbum(id: string, categoryId: string, title: string,
   }
 }
 
-export async function toggleAlbumDraft(id: string, isDraft: boolean) {
+export async function toggleAlbumHidden(id: string, isHidden: boolean) {
   try {
-    await db.update(albums).set({ isDraft }).where(eq(albums.id, id));
+    await db.update(albums).set({ isHidden }).where(eq(albums.id, id));
     revalidatePath("/admin/albums");
     revalidatePath("/", "layout");
     return { success: true };
   } catch {
-    return { success: false, error: "Failed to update draft status" };
+    return { success: false, error: "Failed to update hidden status" };
   }
 }
 

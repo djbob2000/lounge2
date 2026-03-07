@@ -2,12 +2,19 @@ import { asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { HomeSlider } from "@/components/home-slider";
 import { db } from "@/db";
-import { albums, categories, homeSlider } from "@/db/schema";
+import { albums, categories, photos } from "@/db/schema";
 
 export default async function HomePage() {
-  const sliderImages = await db.query.homeSlider.findMany({
-    orderBy: [asc(homeSlider.position)],
+  const sliderImages = await db.query.photos.findMany({
+    where: eq(photos.isSliderImage, true),
+    orderBy: [asc(photos.sliderPosition), asc(photos.createdAt)],
   });
+
+  const formattedImages = sliderImages.map((p) => ({
+    id: p.id,
+    url: p.url,
+    title: null,
+  }));
 
   const featuredAlbums = await db
     .select({
@@ -20,24 +27,24 @@ export default async function HomePage() {
     })
     .from(albums)
     .innerJoin(categories, eq(albums.categoryId, categories.id))
-    .where(eq(albums.isDraft, false))
+    .where(eq(albums.isHidden, false))
     .orderBy(desc(albums.createdAt))
     .limit(3);
 
   return (
     <>
-      <HomeSlider images={sliderImages} />
+      <HomeSlider images={formattedImages} />
 
       {/* Featured Collections Grid */}
       <section className="max-w-7xl mx-auto px-6 py-24">
         <div className="flex flex-col items-center mb-16 relative">
-          <div className="absolute -top-10 text-[120px] font-bold text-slate-100 dark:text-slate-800/50 opacity-50 pointer-events-none select-none z-0 tracking-tighter">
+          <div className="absolute -top-10 text-[120px] font-bold text-muted/30 opacity-50 pointer-events-none select-none z-0 tracking-tighter uppercase whitespace-nowrap">
             WORKS
           </div>
-          <h3 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-2 relative z-10">
+          <h3 className="text-2xl font-bold tracking-tight text-foreground mb-2 relative z-10">
             Featured Collections
           </h3>
-          <p className="text-slate-500 dark:text-slate-400 text-sm italic relative z-10">
+          <p className="text-muted-foreground text-sm italic relative z-10">
             Curated moments across landscapes and portraits
           </p>
         </div>
@@ -50,7 +57,7 @@ export default async function HomePage() {
                 href={`/${album.categorySlug}/${album.slug}`}
                 className="group cursor-pointer block focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-xl"
               >
-                <div className="relative aspect-[4/5] overflow-hidden rounded-xl mb-4 bg-slate-100 dark:bg-slate-800">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-xl mb-4 bg-muted animate-pulse">
                   {album.coverImageUrl ? (
                     <div
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 ease-out"
@@ -59,7 +66,7 @@ export default async function HomePage() {
                       }}
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-slate-300">
+                    <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30">
                       No Cover
                     </div>
                   )}
@@ -69,11 +76,11 @@ export default async function HomePage() {
                 <h4 className="text-lg font-bold tracking-tight mb-1 group-hover:text-primary transition-colors">
                   {album.title}
                 </h4>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{album.categoryName}</p>
+                <p className="text-sm text-muted-foreground">{album.categoryName}</p>
               </Link>
             ))
           ) : (
-            <div className="col-span-3 text-center py-12 text-slate-500 text-sm">
+            <div className="col-span-3 text-center py-12 text-muted-foreground text-sm italic">
               More works coming soon.
             </div>
           )}

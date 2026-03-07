@@ -18,6 +18,7 @@ export async function getPresignedUploadUrl(filename: string, contentType: strin
   try {
     const presignedUrl = await getSignedUrl(r2Client, command, {
       expiresIn: 3600,
+      signableHeaders: new Set(["content-type"]),
     });
     const fileUrl = `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${key}`;
     return { success: true, presignedUrl, key, fileUrl };

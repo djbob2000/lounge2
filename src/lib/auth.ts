@@ -5,14 +5,21 @@ import * as schema from "@/db/schema";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: "pg", // or "mysql", "sqlite"
+    provider: "pg",
     schema: {
-      ...schema,
+      user: schema.user,
+      session: schema.session,
+      account: schema.account,
+      verification: schema.verification,
     },
   }),
+  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL,
   emailAndPassword: {
     enabled: true,
-    // Disable new user registration to protect admin panel
-    // We will create the admin user manually via DB
+  },
+  onAPIError: {
+    onError: (error) => {
+      console.error("Better Auth API Error:", error);
+    },
   },
 });

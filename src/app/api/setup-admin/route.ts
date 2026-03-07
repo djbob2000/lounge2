@@ -3,7 +3,7 @@ import { db } from "@/db";
 
 export async function GET() {
   try {
-    const existingUsers = await db.query.users.findMany();
+    const existingUsers = await db.query.user.findMany();
     if (existingUsers.length > 0) {
       return NextResponse.json(
         { error: "Admin user already exists. Initial setup is locked." },

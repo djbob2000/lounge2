@@ -60,7 +60,7 @@ export function PhotoViewer({ photos }: { photos: Photo[] }) {
 
       {/* Lightbox Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background-dark/95 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-md">
           <button
             type="button"
             onClick={closeViewer}

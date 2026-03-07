@@ -19,6 +19,8 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Edit, GripVertical, Plus, Trash2 } from "lucide-react";
 import { useState, useTransition } from "react";
+import slugify from "slugify";
+
 import {
   createCategory,
   deleteCategory,
@@ -41,6 +43,7 @@ type Category = {
   name: string;
   slug: string;
   position: number;
+  showInMenu: boolean;
 };
 
 function SortableItem({
@@ -65,10 +68,10 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group flex items-center justify-between p-4 bg-white dark:bg-slate-800 border ${
+      className={`group flex items-center justify-between p-4 bg-card border ${
         isDragging
           ? "border-primary shadow-lg z-10 relative"
-          : "border-slate-200 dark:border-slate-700 hover:border-primary/50"
+          : "border-border hover:border-primary/50"
       } rounded-xl transition-all`}
     >
       <div className="flex items-center gap-4">
@@ -76,21 +79,21 @@ function SortableItem({
           type="button"
           {...attributes}
           {...listeners}
-          className="cursor-move text-slate-300 dark:text-slate-600 hover:text-primary transition-colors touch-none"
+          className="cursor-move text-muted-foreground/50 hover:text-primary transition-colors touch-none"
           aria-label="Drag to reorder"
         >
           <GripVertical className="w-5 h-5" />
         </button>
         <div>
-          <h4 className="text-sm font-bold">{category.name}</h4>
-          <p className="text-xs text-slate-500 dark:text-slate-400">/{category.slug}</p>
+          <h4 className="text-sm font-bold text-foreground">{category.name}</h4>
+          <p className="text-xs text-muted-foreground">/{category.slug}</p>
         </div>
       </div>
       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           type="button"
           onClick={() => onEdit(category)}
-          className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+          className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
           aria-label="Edit category"
         >
           <Edit className="w-5 h-5" />
@@ -98,7 +101,7 @@ function SortableItem({
         <button
           type="button"
           onClick={() => onDelete(category)}
-          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+          className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
           aria-label="Delete category"
         >
           <Trash2 className="w-5 h-5" />
@@ -115,7 +118,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Category | null>(null);
 
-  const [formData, setFormData] = useState({ name: "", slug: "" });
+  const [formData, setFormData] = useState({ name: "", slug: "", showInMenu: true });
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -146,18 +149,33 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
 
   const handleCreate = async () => {
     startTransition(async () => {
-      await createCategory(formData.name, formData.slug);
+      const res = await createCategory(formData.name, formData.slug, formData.showInMenu);
+      if (res.success && res.category) {
+        setCategories((prev) => [...prev, res.category as Category]);
+      }
       setIsCreateOpen(false);
-      setFormData({ name: "", slug: "" });
-      // We rely on router.refresh/revalidatePath to sync server data later,
-      // but ideally we'd optimisticly push to state. For now real data flows down.
+      setFormData({ name: "", slug: "", showInMenu: true });
     });
   };
 
   const handleEdit = async () => {
     if (!editTarget) return;
     startTransition(async () => {
-      await updateCategory(editTarget.id, formData.name, formData.slug);
+      const res = await updateCategory(
+        editTarget.id,
+        formData.name,
+        formData.slug,
+        formData.showInMenu,
+      );
+      if (res.success) {
+        setCategories((prev) =>
+          prev.map((c) =>
+            c.id === editTarget.id
+              ? { ...c, name: formData.name, slug: formData.slug, showInMenu: formData.showInMenu }
+              : c,
+          ),
+        );
+      }
       setIsEditOpen(false);
       setEditTarget(null);
     });
@@ -176,8 +194,8 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
     <>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h3 className="text-2xl font-bold">Portfolio Categories</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <h3 className="text-2xl font-bold">Categories</h3>
+          <p className="text-sm text-muted-foreground mt-1">
             Drag and drop to reorder categories. This affects the navigation menu on your site.
           </p>
         </div>
@@ -186,12 +204,12 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
           open={isCreateOpen}
           onOpenChange={(open) => {
             setIsCreateOpen(open);
-            if (!open) setFormData({ name: "", slug: "" });
+            if (!open) setFormData({ name: "", slug: "", showInMenu: true });
           }}
         >
           <DialogTrigger
             render={
-              <Button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm text-slate-900 dark:text-slate-100" />
+              <Button variant="outline" className="flex items-center gap-2 shadow-sm" />
             }
           >
             <Plus className="w-5 h-5" /> Add New Category
@@ -208,7 +226,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                   setFormData({
                     ...formData,
                     name: e.target.value,
-                    slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+                    slug: slugify(e.target.value, { lower: true, strict: true }),
                   })
                 }
               />
@@ -217,6 +235,21 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
               />
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="create-showInMenu"
+                  checked={formData.showInMenu}
+                  onChange={(e) => setFormData({ ...formData, showInMenu: e.target.checked })}
+                  className="w-4 h-4 rounded border-input bg-background text-primary focus:ring-primary"
+                />
+                <label
+                  htmlFor="create-showInMenu"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Show in Navigation Menu
+                </label>
+              </div>
             </div>
             <DialogFooter>
               <Button
@@ -252,6 +285,21 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
             />
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="edit-showInMenu"
+                checked={formData.showInMenu}
+                onChange={(e) => setFormData({ ...formData, showInMenu: e.target.checked })}
+                className="w-4 h-4 rounded border-input bg-background text-primary focus:ring-primary"
+              />
+              <label
+                htmlFor="edit-showInMenu"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Show in Navigation Menu
+              </label>
+            </div>
           </div>
           <DialogFooter>
             <Button onClick={handleEdit} disabled={!formData.name || !formData.slug || isPending}>
@@ -273,7 +321,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                 category={category}
                 onEdit={(c) => {
                   setEditTarget(c);
-                  setFormData({ name: c.name, slug: c.slug });
+                  setFormData({ name: c.name, slug: c.slug, showInMenu: c.showInMenu });
                   setIsEditOpen(true);
                 }}
                 onDelete={handleDelete}
@@ -284,7 +332,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
       </div>
 
       {categories.length === 0 && (
-        <div className="mt-8 flex items-center justify-center p-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 text-slate-400 text-sm">
+        <div className="mt-8 flex items-center justify-center p-6 border-2 border-dashed border-border rounded-xl bg-muted/20 text-muted-foreground text-sm">
           No categories found. Create one to get started.
         </div>
       )}

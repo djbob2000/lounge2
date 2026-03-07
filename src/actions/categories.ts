@@ -5,17 +5,21 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
 
-export async function createCategory(name: string, slug: string) {
+export async function createCategory(name: string, slug: string, showInMenu: boolean = true) {
   try {
     const all = await db.query.categories.findMany();
-    await db.insert(categories).values({
-      name,
-      slug,
-      position: all.length,
-    });
+    const [inserted] = await db
+      .insert(categories)
+      .values({
+        name,
+        slug,
+        showInMenu,
+        position: all.length,
+      })
+      .returning();
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
-    return { success: true };
+    return { success: true, category: inserted };
   } catch {
     return {
       success: false,
@@ -24,9 +28,9 @@ export async function createCategory(name: string, slug: string) {
   }
 }
 
-export async function updateCategory(id: string, name: string, slug: string) {
+export async function updateCategory(id: string, name: string, slug: string, showInMenu: boolean) {
   try {
-    await db.update(categories).set({ name, slug }).where(eq(categories.id, id));
+    await db.update(categories).set({ name, slug, showInMenu }).where(eq(categories.id, id));
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
     return { success: true };
