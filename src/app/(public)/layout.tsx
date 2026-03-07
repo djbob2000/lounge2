@@ -24,7 +24,7 @@ export default async function PublicLayout({
             <Sparkles className="w-12 h-12" />
           </div>
           <h1 className="text-3xl font-bold tracking-widest uppercase mt-2 group-hover:text-primary transition-colors duration-300">
-            Aura Photography
+            Elena Marinych
           </h1>
           <div className="h-px w-12 bg-primary/40 mt-1 transition-all duration-500 group-hover:w-24 group-hover:bg-primary"></div>
         </Link>
@@ -69,7 +69,7 @@ export default async function PublicLayout({
             </a>
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-xs tracking-widest uppercase opacity-80">
-            © {new Date().getFullYear()} Aura Photography. All rights reserved.
+            © {new Date().getFullYear()} Elena Marinych. All rights reserved.
           </p>
         </div>
       </footer>

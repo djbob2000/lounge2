@@ -24,8 +24,8 @@ export function HomeSlider({ images }: { images: SliderImage[] }) {
 
   if (images.length === 0) {
     return (
-      <div className="w-full h-[80vh] flex items-center justify-center bg-slate-100 dark:bg-slate-900">
-        <p className="text-slate-500 uppercase tracking-widest text-sm">
+      <div className="w-full h-[80vh] flex items-center justify-center bg-muted transition-colors duration-700">
+        <p className="text-muted-foreground uppercase tracking-widest text-sm transition-colors duration-700">
           No featured images
         </p>
       </div>
@@ -37,7 +37,7 @@ export function HomeSlider({ images }: { images: SliderImage[] }) {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
 
   return (
-    <div className="relative w-full h-[80vh] overflow-hidden group bg-slate-900">
+    <div className="relative w-full h-[80vh] overflow-hidden group bg-background transition-colors duration-700">
       {images.map((img, index) => (
         <div
           key={img.id}
@@ -65,6 +65,9 @@ export function HomeSlider({ images }: { images: SliderImage[] }) {
               <h2 className="text-white text-5xl md:text-7xl font-bold leading-tight tracking-tight mb-8 max-w-4xl drop-shadow-lg">
                 {img.title || "Capturing Life's Essence"}
               </h2>
+              <button className="bg-primary text-primary-foreground px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-primary/90 transition-all rounded-lg">
+                View Portfolio
+              </button>
             </div>
           )}
         </div>
