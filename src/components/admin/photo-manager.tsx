@@ -121,7 +121,7 @@ export function PhotoManager({
 }) {
   const [photos, setPhotos] = useState(initialPhotos);
   const [coverKey, setCoverKey] = useState(currentCoverKey);
-  const [_isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 

@@ -18,7 +18,7 @@ export async function addSliderPhoto(url: string, r2Key: string, title?: string)
     revalidatePath("/admin/slider");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to add slider photo" };
   }
 }
@@ -31,7 +31,7 @@ export async function removeSliderPhoto(id: string, r2Key: string) {
     revalidatePath("/admin/slider");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to remove slider photo" };
   }
 }
@@ -42,7 +42,7 @@ export async function updateSliderTitle(id: string, title: string) {
     revalidatePath("/admin/slider");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to update slider title" };
   }
 }
@@ -58,7 +58,7 @@ export async function reorderSliderPhotos(updates: { id: string; position: numbe
     revalidatePath("/admin/slider");
     revalidatePath("/");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to reorder slider photos" };
   }
 }

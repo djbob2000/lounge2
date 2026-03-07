@@ -23,7 +23,7 @@ export async function GET() {
       message:
         "To create the admin, please temporarily set emailAndPassword.enabled to true in src/lib/auth.ts, login via a signup form (or API call), and then turn it back off.",
     });
-  } catch (_error) {
+  } catch {
     return NextResponse.json({ error: "Database not configured yet." }, { status: 500 });
   }
 }

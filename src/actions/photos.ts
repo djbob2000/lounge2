@@ -20,7 +20,7 @@ export async function savePhotoToDb(albumId: string, url: string, r2Key: string)
     revalidatePath(`/admin/albums/${albumId}`);
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to save photo" };
   }
 }
@@ -47,7 +47,7 @@ export async function deletePhotoDb(id: string, r2Key: string, albumId: string) 
     revalidatePath("/admin/albums");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to delete photo" };
   }
 }
@@ -62,7 +62,7 @@ export async function setAlbumCover(albumId: string, url: string, r2Key: string)
     revalidatePath("/admin/albums");
     revalidatePath("/");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to set cover" };
   }
 }
@@ -75,7 +75,7 @@ export async function reorderPhotos(updates: { id: string; position: number }[],
     revalidatePath(`/admin/albums/${albumId}`);
     revalidatePath("/");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to reorder photos" };
   }
 }

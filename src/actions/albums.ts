@@ -20,7 +20,7 @@ export async function createAlbum(categoryId: string, title: string, slug: strin
     revalidatePath("/admin/albums");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to create album or slug exists" };
   }
 }
@@ -31,7 +31,7 @@ export async function updateAlbum(id: string, categoryId: string, title: string,
     revalidatePath("/admin/albums");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to update album" };
   }
 }
@@ -42,7 +42,7 @@ export async function toggleAlbumDraft(id: string, isDraft: boolean) {
     revalidatePath("/admin/albums");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to update draft status" };
   }
 }
@@ -59,7 +59,7 @@ export async function deleteAlbum(id: string) {
     revalidatePath("/admin/albums");
     revalidatePath("/");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to delete album" };
   }
 }
@@ -72,7 +72,7 @@ export async function reorderAlbums(updates: { id: string; position: number }[])
     revalidatePath("/admin/albums");
     revalidatePath("/");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to reorder albums" };
   }
 }

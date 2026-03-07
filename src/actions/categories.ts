@@ -16,7 +16,7 @@ export async function createCategory(name: string, slug: string) {
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return {
       success: false,
       error: "Failed to create category or slug exists",
@@ -30,7 +30,7 @@ export async function updateCategory(id: string, name: string, slug: string) {
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to update category" };
   }
 }
@@ -41,7 +41,7 @@ export async function deleteCategory(id: string) {
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to delete category" };
   }
 }
@@ -57,7 +57,7 @@ export async function reorderCategories(updates: { id: string; position: number 
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, error: "Failed to reorder categories" };
   }
 }
