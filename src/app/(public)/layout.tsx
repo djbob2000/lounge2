@@ -1,14 +1,10 @@
+import { asc } from "drizzle-orm";
+import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
-import { asc } from "drizzle-orm";
-import { Sparkles } from "lucide-react";
 
-export default async function PublicLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const allCategories = await db.query.categories.findMany({
     orderBy: [asc(categories.position)],
   });
@@ -60,9 +56,12 @@ export default async function PublicLayout({
           <div className="flex gap-8 mb-10">
             <a
               className="text-slate-400 hover:text-primary transform hover:-translate-y-1 transition-all duration-300"
-              href="#"
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" role="img">
+                <title>Instagram</title>
                 <path d="M12 2.163..."></path>
               </svg>
               <span className="sr-only">Instagram</span>

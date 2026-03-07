@@ -1,8 +1,8 @@
-import { db } from "@/db";
-import { homeSlider, albums, categories } from "@/db/schema";
 import { asc, desc, eq } from "drizzle-orm";
-import { HomeSlider } from "@/components/home-slider";
 import Link from "next/link";
+import { HomeSlider } from "@/components/home-slider";
+import { db } from "@/db";
+import { albums, categories, homeSlider } from "@/db/schema";
 
 export default async function HomePage() {
   const sliderImages = await db.query.homeSlider.findMany({
@@ -69,9 +69,7 @@ export default async function HomePage() {
                 <h4 className="text-lg font-bold tracking-tight mb-1 group-hover:text-primary transition-colors">
                   {album.title}
                 </h4>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  {album.categoryName}
-                </p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{album.categoryName}</p>
               </Link>
             ))
           ) : (

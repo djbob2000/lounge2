@@ -1,16 +1,12 @@
 "use server";
 
-import { db } from "@/db";
-import { homeSlider } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { db } from "@/db";
+import { homeSlider } from "@/db/schema";
 import { deletePublicFile } from "./upload";
 
-export async function addSliderPhoto(
-  url: string,
-  r2Key: string,
-  title?: string,
-) {
+export async function addSliderPhoto(url: string, r2Key: string, title?: string) {
   try {
     const existing = await db.query.homeSlider.findMany();
     await db.insert(homeSlider).values({
@@ -22,7 +18,7 @@ export async function addSliderPhoto(
     revalidatePath("/admin/slider");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: "Failed to add slider photo" };
   }
 }
@@ -35,7 +31,7 @@ export async function removeSliderPhoto(id: string, r2Key: string) {
     revalidatePath("/admin/slider");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: "Failed to remove slider photo" };
   }
 }
@@ -46,14 +42,12 @@ export async function updateSliderTitle(id: string, title: string) {
     revalidatePath("/admin/slider");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: "Failed to update slider title" };
   }
 }
 
-export async function reorderSliderPhotos(
-  updates: { id: string; position: number }[],
-) {
+export async function reorderSliderPhotos(updates: { id: string; position: number }[]) {
   try {
     for (const update of updates) {
       await db
@@ -64,7 +58,7 @@ export async function reorderSliderPhotos(
     revalidatePath("/admin/slider");
     revalidatePath("/");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: "Failed to reorder slider photos" };
   }
 }

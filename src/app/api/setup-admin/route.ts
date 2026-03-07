@@ -1,7 +1,5 @@
-import { db } from "@/db";
-import { users } from "@/db/schema";
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth"; // Make sure to get your Better Auth instance
+import { db } from "@/db";
 
 export async function GET() {
   try {
@@ -25,10 +23,7 @@ export async function GET() {
       message:
         "To create the admin, please temporarily set emailAndPassword.enabled to true in src/lib/auth.ts, login via a signup form (or API call), and then turn it back off.",
     });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Database not configured yet." },
-      { status: 500 },
-    );
+  } catch (_error) {
+    return NextResponse.json({ error: "Database not configured yet." }, { status: 500 });
   }
 }

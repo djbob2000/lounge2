@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
 
 type Photo = {
   id: string;
@@ -18,7 +17,7 @@ export function PhotoViewer({ photos }: { photos: Photo[] }) {
     setIsOpen(true);
   };
 
-  const closeViewer = () => setIsOpen(false);
+  const closeViewer = useCallback(() => setIsOpen(false), []);
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % photos.length);
@@ -37,23 +36,25 @@ export function PhotoViewer({ photos }: { photos: Photo[] }) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, nextSlide, prevSlide]);
+  }, [isOpen, nextSlide, prevSlide, closeViewer]);
 
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
         {photos.map((photo, index) => (
-          <div
+          <button
+            type="button"
             key={photo.id}
             onClick={() => openViewer(index)}
-            className="group relative aspect-square overflow-hidden cursor-pointer"
+            className="group relative aspect-square overflow-hidden cursor-pointer p-0 border-none bg-transparent"
+            aria-label={`View photo ${index + 1}`}
           >
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
               style={{ backgroundImage: `url('${photo.url}')` }}
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-          </div>
+          </button>
         ))}
       </div>
 
@@ -61,8 +62,10 @@ export function PhotoViewer({ photos }: { photos: Photo[] }) {
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background-dark/95 backdrop-blur-md">
           <button
+            type="button"
             onClick={closeViewer}
             className="absolute top-6 right-6 p-2 text-white/50 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition-all z-50"
+            aria-label="Close viewer"
           >
             <X className="w-8 h-8" />
           </button>
@@ -70,14 +73,18 @@ export function PhotoViewer({ photos }: { photos: Photo[] }) {
           {photos.length > 1 && (
             <>
               <button
+                type="button"
                 onClick={prevSlide}
                 className="absolute left-6 p-4 text-white/50 hover:text-white bg-black/10 hover:bg-black/30 rounded-full transition-all z-50"
+                aria-label="Previous photo"
               >
                 <ChevronLeft className="w-8 h-8" />
               </button>
               <button
+                type="button"
                 onClick={nextSlide}
                 className="absolute right-6 p-4 text-white/50 hover:text-white bg-black/10 hover:bg-black/30 rounded-full transition-all z-50"
+                aria-label="Next photo"
               >
                 <ChevronRight className="w-8 h-8" />
               </button>

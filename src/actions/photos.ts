@@ -1,16 +1,12 @@
 "use server";
 
-import { db } from "@/db";
-import { photos, albums } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { db } from "@/db";
+import { albums, photos } from "@/db/schema";
 import { deletePublicFile } from "./upload";
 
-export async function savePhotoToDb(
-  albumId: string,
-  url: string,
-  r2Key: string,
-) {
+export async function savePhotoToDb(albumId: string, url: string, r2Key: string) {
   try {
     const existing = await db.query.photos.findMany({
       where: eq(photos.albumId, albumId),
@@ -24,16 +20,12 @@ export async function savePhotoToDb(
     revalidatePath(`/admin/albums/${albumId}`);
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: "Failed to save photo" };
   }
 }
 
-export async function deletePhotoDb(
-  id: string,
-  r2Key: string,
-  albumId: string,
-) {
+export async function deletePhotoDb(id: string, r2Key: string, albumId: string) {
   try {
     // Delete from Cloudflare R2
     await deletePublicFile(r2Key);
@@ -55,16 +47,12 @@ export async function deletePhotoDb(
     revalidatePath("/admin/albums");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: "Failed to delete photo" };
   }
 }
 
-export async function setAlbumCover(
-  albumId: string,
-  url: string,
-  r2Key: string,
-) {
+export async function setAlbumCover(albumId: string, url: string, r2Key: string) {
   try {
     await db
       .update(albums)
@@ -74,26 +62,20 @@ export async function setAlbumCover(
     revalidatePath("/admin/albums");
     revalidatePath("/");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: "Failed to set cover" };
   }
 }
 
-export async function reorderPhotos(
-  updates: { id: string; position: number }[],
-  albumId: string,
-) {
+export async function reorderPhotos(updates: { id: string; position: number }[], albumId: string) {
   try {
     for (const update of updates) {
-      await db
-        .update(photos)
-        .set({ position: update.position })
-        .where(eq(photos.id, update.id));
+      await db.update(photos).set({ position: update.position }).where(eq(photos.id, update.id));
     }
     revalidatePath(`/admin/albums/${albumId}`);
     revalidatePath("/");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: "Failed to reorder photos" };
   }
 }

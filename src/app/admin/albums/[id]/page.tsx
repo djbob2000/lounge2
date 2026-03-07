@@ -1,16 +1,14 @@
+import { asc, eq } from "drizzle-orm";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PhotoManager } from "@/components/admin/photo-manager";
 import { db } from "@/db";
 import { albums, photos } from "@/db/schema";
-import { eq, asc } from "drizzle-orm";
-import { PhotoManager } from "@/components/admin/photo-manager";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminAlbumPage(props: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function AdminAlbumPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const albumId = params.id;
 
@@ -35,9 +33,7 @@ export default async function AdminAlbumPage(props: {
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h2 className="text-lg font-semibold tracking-tight">
-            Album / {album.title}
-          </h2>
+          <h2 className="text-lg font-semibold tracking-tight">Album / {album.title}</h2>
         </div>
       </header>
 

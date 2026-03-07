@@ -1,9 +1,9 @@
 "use server";
 
-import { db } from "@/db";
-import { categories } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { db } from "@/db";
+import { categories } from "@/db/schema";
 
 export async function createCategory(name: string, slug: string) {
   try {
@@ -16,7 +16,7 @@ export async function createCategory(name: string, slug: string) {
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return {
       success: false,
       error: "Failed to create category or slug exists",
@@ -26,14 +26,11 @@ export async function createCategory(name: string, slug: string) {
 
 export async function updateCategory(id: string, name: string, slug: string) {
   try {
-    await db
-      .update(categories)
-      .set({ name, slug })
-      .where(eq(categories.id, id));
+    await db.update(categories).set({ name, slug }).where(eq(categories.id, id));
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: "Failed to update category" };
   }
 }
@@ -44,14 +41,12 @@ export async function deleteCategory(id: string) {
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: "Failed to delete category" };
   }
 }
 
-export async function reorderCategories(
-  updates: { id: string; position: number }[],
-) {
+export async function reorderCategories(updates: { id: string; position: number }[]) {
   try {
     for (const update of updates) {
       await db
@@ -62,7 +57,7 @@ export async function reorderCategories(
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: "Failed to reorder categories" };
   }
 }

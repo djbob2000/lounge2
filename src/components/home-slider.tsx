@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type SliderImage = {
@@ -33,8 +32,7 @@ export function HomeSlider({ images }: { images: SliderImage[] }) {
   }
 
   const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length);
-  const prevSlide = () =>
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
 
   return (
     <div className="relative w-full h-[80vh] overflow-hidden group bg-background transition-colors duration-700">
@@ -43,9 +41,7 @@ export function HomeSlider({ images }: { images: SliderImage[] }) {
           key={img.id}
           className={cn(
             "absolute inset-0 transition-opacity duration-1000 ease-in-out",
-            index === currentIndex
-              ? "opacity-100 z-10"
-              : "opacity-0 z-0 pointer-events-none",
+            index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none",
           )}
         >
           <div
@@ -65,7 +61,10 @@ export function HomeSlider({ images }: { images: SliderImage[] }) {
               <h2 className="text-white text-5xl md:text-7xl font-bold leading-tight tracking-tight mb-8 max-w-4xl drop-shadow-lg">
                 {img.title || "Capturing Life's Essence"}
               </h2>
-              <button className="bg-primary text-primary-foreground px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-primary/90 transition-all rounded-lg">
+              <button
+                type="button"
+                className="bg-primary text-primary-foreground px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-primary/90 transition-all rounded-lg"
+              >
                 View Portfolio
               </button>
             </div>
@@ -78,16 +77,20 @@ export function HomeSlider({ images }: { images: SliderImage[] }) {
         <>
           <div className="absolute inset-y-0 left-8 flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
             <button
+              type="button"
               onClick={prevSlide}
               className="bg-white/10 backdrop-blur-md text-white p-3 rounded-full hover:bg-white/20 transition-colors"
+              aria-label="Previous slide"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
           </div>
           <div className="absolute inset-y-0 right-8 flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
             <button
+              type="button"
               onClick={nextSlide}
               className="bg-white/10 backdrop-blur-md text-white p-3 rounded-full hover:bg-white/20 transition-colors"
+              aria-label="Next slide"
             >
               <ChevronRight className="w-6 h-6" />
             </button>
@@ -95,15 +98,15 @@ export function HomeSlider({ images }: { images: SliderImage[] }) {
 
           {/* Pagination Dots */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-            {images.map((_, index) => (
+            {images.map((img, index) => (
               <button
-                key={index}
+                type="button"
+                key={img.id}
                 onClick={() => setCurrentIndex(index)}
+                aria-label={`Go to slide ${index + 1}`}
                 className={cn(
                   "w-2 h-2 rounded-full transition-all duration-300",
-                  index === currentIndex
-                    ? "bg-white scale-125"
-                    : "bg-white/40 hover:bg-white/60",
+                  index === currentIndex ? "bg-white scale-125" : "bg-white/40 hover:bg-white/60",
                 )}
               />
             ))}

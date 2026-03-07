@@ -1,18 +1,15 @@
 import { betterFetch } from "@better-fetch/fetch";
 import type { Session } from "better-auth/types";
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function proxy(request: NextRequest) {
-  const { data: session } = await betterFetch<Session>(
-    "/api/auth/get-session",
-    {
-      baseURL: request.nextUrl.origin,
-      headers: {
-        //get the cookie from the request
-        cookie: request.headers.get("cookie") || "",
-      },
+  const { data: session } = await betterFetch<Session>("/api/auth/get-session", {
+    baseURL: request.nextUrl.origin,
+    headers: {
+      //get the cookie from the request
+      cookie: request.headers.get("cookie") || "",
     },
-  );
+  });
 
   const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
   const isLoginRoute = request.nextUrl.pathname === "/login";

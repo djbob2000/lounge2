@@ -1,40 +1,40 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { UploadCloud, Trash2, GripHorizontal, Type } from "lucide-react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { GripHorizontal, Trash2, Type, UploadCloud } from "lucide-react";
+import { useState, useTransition } from "react";
 import {
   addSliderPhoto,
   removeSliderPhoto,
-  updateSliderTitle,
   reorderSliderPhotos,
+  updateSliderTitle,
 } from "@/actions/home-slider";
 import { getPresignedUploadUrl } from "@/actions/upload";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 type SliderImage = {
   id: string;
@@ -53,14 +53,9 @@ function SortableSliderImage({
   onDelete: (i: SliderImage) => void;
   onEditTitle: (i: SliderImage) => void;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: image.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: image.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -72,9 +67,7 @@ function SortableSliderImage({
       ref={setNodeRef}
       style={style}
       className={`group relative aspect-video overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 border-2 ${
-        isDragging
-          ? "border-primary shadow-xl z-10 scale-105"
-          : "border-transparent"
+        isDragging ? "border-primary shadow-xl z-10 scale-105" : "border-transparent"
       } transition-all`}
     >
       <div
@@ -90,9 +83,11 @@ function SortableSliderImage({
 
       {/* Drag Handle */}
       <button
+        type="button"
         {...attributes}
         {...listeners}
         className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity touch-none cursor-move"
+        aria-label="Drag to reorder"
       >
         <GripHorizontal className="w-4 h-4" />
       </button>
@@ -100,16 +95,20 @@ function SortableSliderImage({
       {/* Actions */}
       <div className="absolute top-2 left-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
+          type="button"
           onClick={() => onEditTitle(image)}
           className="p-1.5 bg-white/90 text-slate-900 rounded-lg hover:bg-white transition-colors"
           title="Edit Title Overlay"
+          aria-label="Edit title overlay"
         >
           <Type className="w-4 h-4" />
         </button>
         <button
+          type="button"
           onClick={() => onDelete(image)}
           className="p-1.5 bg-red-500/90 text-white rounded-lg hover:bg-red-500 transition-colors"
           title="Remove from Slider"
+          aria-label="Remove from slider"
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -118,11 +117,7 @@ function SortableSliderImage({
   );
 }
 
-export function SliderManager({
-  initialImages,
-}: {
-  initialImages: SliderImage[];
-}) {
+export function SliderManager({ initialImages }: { initialImages: SliderImage[] }) {
   const [images, setImages] = useState(initialImages);
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
@@ -158,9 +153,7 @@ export function SliderManager({
     }
   };
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
@@ -209,9 +202,7 @@ export function SliderManager({
     startTransition(async () => {
       await updateSliderTitle(editTarget.id, titleInput);
       setImages((prev) =>
-        prev.map((i) =>
-          i.id === editTarget.id ? { ...i, title: titleInput } : i,
-        ),
+        prev.map((i) => (i.id === editTarget.id ? { ...i, title: titleInput } : i)),
       );
       setEditTarget(null);
     });
@@ -223,8 +214,8 @@ export function SliderManager({
         <div>
           <h3 className="text-2xl font-bold">Home Page Slider</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            These images will appear full screen on the home page. Ideal ratio
-            is 16:9 or similar cinematic crops.
+            These images will appear full screen on the home page. Ideal ratio is 16:9 or similar
+            cinematic crops.
           </p>
         </div>
 
@@ -296,16 +287,9 @@ export function SliderManager({
           <p className="text-sm font-medium">No slider images yet</p>
         </div>
       ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <SortableContext
-              items={images.map((i) => i.id)}
-              strategy={rectSortingStrategy}
-            >
+            <SortableContext items={images.map((i) => i.id)} strategy={rectSortingStrategy}>
               {images.map((image) => (
                 <SortableSliderImage
                   key={image.id}

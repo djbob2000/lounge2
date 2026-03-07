@@ -1,9 +1,9 @@
+import { asc, eq } from "drizzle-orm";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/db";
-import { categories, albums } from "@/db/schema";
-import { eq, asc } from "drizzle-orm";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { albums, categories } from "@/db/schema";
 
 export async function generateStaticParams() {
   const allCategories = await db.query.categories.findMany();
@@ -12,9 +12,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function CategoryPage(props: {
-  params: Promise<{ categorySlug: string }>;
-}) {
+export default async function CategoryPage(props: { params: Promise<{ categorySlug: string }> }) {
   const params = await props.params;
   const category = await db.query.categories.findFirst({
     where: eq(categories.slug, params.categorySlug),
@@ -46,8 +44,7 @@ export default async function CategoryPage(props: {
           {category.name}
         </h2>
         <p className="text-slate-500 dark:text-slate-400 text-sm italic relative z-10">
-          {publishedAlbums.length}{" "}
-          {publishedAlbums.length === 1 ? "collection" : "collections"}
+          {publishedAlbums.length} {publishedAlbums.length === 1 ? "collection" : "collections"}
         </p>
       </div>
 

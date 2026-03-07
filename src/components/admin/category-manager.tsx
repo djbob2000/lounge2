@@ -1,40 +1,40 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Plus, GripVertical, Edit, Trash2 } from "lucide-react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
   useSortable,
+  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Edit, GripVertical, Plus, Trash2 } from "lucide-react";
+import { useState, useTransition } from "react";
+import {
+  createCategory,
+  deleteCategory,
+  reorderCategories,
+  updateCategory,
+} from "@/actions/categories";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  createCategory,
-  updateCategory,
-  deleteCategory,
-  reorderCategories,
-} from "@/actions/categories";
 
 type Category = {
   id: string;
@@ -52,14 +52,9 @@ function SortableItem({
   onEdit: (c: Category) => void;
   onDelete: (c: Category) => void;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: category.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: category.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -78,29 +73,33 @@ function SortableItem({
     >
       <div className="flex items-center gap-4">
         <button
+          type="button"
           {...attributes}
           {...listeners}
           className="cursor-move text-slate-300 dark:text-slate-600 hover:text-primary transition-colors touch-none"
+          aria-label="Drag to reorder"
         >
           <GripVertical className="w-5 h-5" />
         </button>
         <div>
           <h4 className="text-sm font-bold">{category.name}</h4>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            /{category.slug}
-          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">/{category.slug}</p>
         </div>
       </div>
       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
+          type="button"
           onClick={() => onEdit(category)}
           className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+          aria-label="Edit category"
         >
           <Edit className="w-5 h-5" />
         </button>
         <button
+          type="button"
           onClick={() => onDelete(category)}
           className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+          aria-label="Delete category"
         >
           <Trash2 className="w-5 h-5" />
         </button>
@@ -109,11 +108,7 @@ function SortableItem({
   );
 }
 
-export function CategoryManager({
-  initialCategories,
-}: {
-  initialCategories: Category[];
-}) {
+export function CategoryManager({ initialCategories }: { initialCategories: Category[] }) {
   const [categories, setCategories] = useState(initialCategories);
   const [isPending, startTransition] = useTransition();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -141,9 +136,7 @@ export function CategoryManager({
         position: index,
       }));
 
-      setCategories(
-        newItems.map((item, index) => ({ ...item, position: index })),
-      );
+      setCategories(newItems.map((item, index) => ({ ...item, position: index })));
 
       startTransition(async () => {
         await reorderCategories(updates);
@@ -185,8 +178,7 @@ export function CategoryManager({
         <div>
           <h3 className="text-2xl font-bold">Portfolio Categories</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Drag and drop to reorder categories. This affects the navigation
-            menu on your site.
+            Drag and drop to reorder categories. This affects the navigation menu on your site.
           </p>
         </div>
 
@@ -216,18 +208,14 @@ export function CategoryManager({
                   setFormData({
                     ...formData,
                     name: e.target.value,
-                    slug: e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9]+/g, "-"),
+                    slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
                   })
                 }
               />
               <Input
                 placeholder="Slug (e.g., sketches)"
                 value={formData.slug}
-                onChange={(e) =>
-                  setFormData({ ...formData, slug: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
               />
             </div>
             <DialogFooter>
@@ -257,23 +245,16 @@ export function CategoryManager({
             <Input
               placeholder="Name"
               value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
             <Input
               placeholder="Slug"
               value={formData.slug}
-              onChange={(e) =>
-                setFormData({ ...formData, slug: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
             />
           </div>
           <DialogFooter>
-            <Button
-              onClick={handleEdit}
-              disabled={!formData.name || !formData.slug || isPending}
-            >
+            <Button onClick={handleEdit} disabled={!formData.name || !formData.slug || isPending}>
               Save Changes
             </Button>
           </DialogFooter>
@@ -281,11 +262,7 @@ export function CategoryManager({
       </Dialog>
 
       <div className="space-y-3">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext
             items={categories.map((c) => c.id)}
             strategy={verticalListSortingStrategy}

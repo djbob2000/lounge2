@@ -1,50 +1,42 @@
 "use client";
 
-import { useState, useTransition } from "react";
 import {
-  Plus,
-  GripVertical,
-  Edit,
-  Trash2,
-  Eye,
-  EyeOff,
-  Image as ImageIcon,
-} from "lucide-react";
-import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
   useSortable,
+  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Edit, Eye, EyeOff, GripVertical, Image as ImageIcon, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useState, useTransition } from "react";
 import {
   createAlbum,
-  updateAlbum,
   deleteAlbum,
   reorderAlbums,
   toggleAlbumDraft,
+  updateAlbum,
 } from "@/actions/albums";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 type Album = {
   id: string;
@@ -72,14 +64,9 @@ function SortableItem({
   onDelete: (a: Album) => void;
   onToggle: (a: Album) => void;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: album.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: album.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -98,6 +85,7 @@ function SortableItem({
     >
       <div className="flex items-center gap-4">
         <button
+          type="button"
           {...attributes}
           {...listeners}
           className="cursor-move text-slate-300 dark:text-slate-600 hover:text-primary transition-colors touch-none"
@@ -125,9 +113,7 @@ function SortableItem({
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            /{album.slug}
-          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">/{album.slug}</p>
         </div>
       </div>
       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -139,17 +125,15 @@ function SortableItem({
           <ImageIcon className="w-5 h-5" />
         </Link>
         <button
+          type="button"
           onClick={() => onToggle(album)}
           className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-700/50 rounded-lg transition-all"
           title={album.isDraft ? "Publish" : "Move to Drafts"}
         >
-          {album.isDraft ? (
-            <Eye className="w-5 h-5" />
-          ) : (
-            <EyeOff className="w-5 h-5" />
-          )}
+          {album.isDraft ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
         </button>
         <button
+          type="button"
           onClick={() => onEdit(album)}
           className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
           title="Edit Album"
@@ -157,6 +141,7 @@ function SortableItem({
           <Edit className="w-5 h-5" />
         </button>
         <button
+          type="button"
           onClick={() => onDelete(album)}
           className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
           title="Delete Album"
@@ -176,9 +161,7 @@ export function AlbumManager({
   categories: Category[];
 }) {
   const [albums, setAlbums] = useState(initialAlbums);
-  const [selectedCategory, setSelectedCategory] = useState<string>(
-    categories[0]?.id || "",
-  );
+  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]?.id || "");
   const [isPending, startTransition] = useTransition();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -239,12 +222,7 @@ export function AlbumManager({
   const handleEdit = async () => {
     if (!editTarget) return;
     startTransition(async () => {
-      await updateAlbum(
-        editTarget.id,
-        formData.categoryId,
-        formData.title,
-        formData.slug,
-      );
+      await updateAlbum(editTarget.id, formData.categoryId, formData.title, formData.slug);
       setIsEditOpen(false);
       setEditTarget(null);
     });
@@ -253,11 +231,7 @@ export function AlbumManager({
   const handleToggleDraft = async (album: Album) => {
     startTransition(async () => {
       await toggleAlbumDraft(album.id, !album.isDraft);
-      setAlbums((prev) =>
-        prev.map((a) =>
-          a.id === album.id ? { ...a, isDraft: !a.isDraft } : a,
-        ),
-      );
+      setAlbums((prev) => prev.map((a) => (a.id === album.id ? { ...a, isDraft: !a.isDraft } : a)));
     });
   };
 
@@ -326,18 +300,14 @@ export function AlbumManager({
                   setFormData({
                     ...formData,
                     title: e.target.value,
-                    slug: e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9]+/g, "-"),
+                    slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
                   })
                 }
               />
               <Input
                 placeholder="Slug (e.g., summer-pre-wed)"
                 value={formData.slug}
-                onChange={(e) =>
-                  setFormData({ ...formData, slug: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
               />
             </div>
             <DialogFooter>
@@ -366,9 +336,7 @@ export function AlbumManager({
           <div className="grid gap-4 py-4">
             <select
               value={formData.categoryId}
-              onChange={(e) =>
-                setFormData({ ...formData, categoryId: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
               className="px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium outline-none"
             >
               {categories.map((c) => (
@@ -380,23 +348,16 @@ export function AlbumManager({
             <Input
               placeholder="Title"
               value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             />
             <Input
               placeholder="Slug"
               value={formData.slug}
-              onChange={(e) =>
-                setFormData({ ...formData, slug: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
             />
           </div>
           <DialogFooter>
-            <Button
-              onClick={handleEdit}
-              disabled={!formData.title || !formData.slug || isPending}
-            >
+            <Button onClick={handleEdit} disabled={!formData.title || !formData.slug || isPending}>
               Save Changes
             </Button>
           </DialogFooter>

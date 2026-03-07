@@ -1,9 +1,9 @@
 "use client";
 
+import { Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
-import { Sparkles } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -17,7 +17,7 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const { data, error } = await authClient.signIn.email({
+    const { error } = await authClient.signIn.email({
       email,
       password,
     });
@@ -53,10 +53,14 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-300">
+            <label
+              htmlFor="email"
+              className="text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-300"
+            >
               Email Address
             </label>
             <input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -67,10 +71,14 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-300">
+            <label
+              htmlFor="password"
+              className="text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-300"
+            >
               Password
             </label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

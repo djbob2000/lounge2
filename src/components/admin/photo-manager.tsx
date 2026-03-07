@@ -1,38 +1,27 @@
 "use client";
 
-import { useState, useTransition } from "react";
 import {
-  Plus,
-  Trash2,
-  Image as ImageIcon,
-  UploadCloud,
-  GripHorizontal,
-} from "lucide-react";
-import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button } from "@/components/ui/button";
-import {
-  savePhotoToDb,
-  deletePhotoDb,
-  setAlbumCover,
-  reorderPhotos,
-} from "@/actions/photos";
+import { GripHorizontal, Image as ImageIcon, Trash2, UploadCloud } from "lucide-react";
+import { useState, useTransition } from "react";
+import { deletePhotoDb, reorderPhotos, savePhotoToDb, setAlbumCover } from "@/actions/photos";
 import { getPresignedUploadUrl } from "@/actions/upload";
+import { Button } from "@/components/ui/button";
 
 type Photo = {
   id: string;
@@ -52,14 +41,9 @@ function SortablePhoto({
   onSetCover: (p: Photo) => void;
   isCover: boolean;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: photo.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: photo.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -92,9 +76,11 @@ function SortablePhoto({
 
       {/* Drag Handle */}
       <button
+        type="button"
         {...attributes}
         {...listeners}
         className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity touch-none cursor-move"
+        aria-label="Drag to reorder"
       >
         <GripHorizontal className="w-4 h-4" />
       </button>
@@ -102,16 +88,20 @@ function SortablePhoto({
       {/* Actions */}
       <div className="absolute bottom-0 left-0 right-0 p-2 flex items-center justify-between gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 duration-300">
         <button
+          type="button"
           onClick={() => onSetCover(photo)}
           className="flex-1 text-xs font-semibold py-1.5 bg-white/90 text-slate-900 rounded-lg hover:bg-white transition-colors flex items-center justify-center gap-1"
           title="Set as Album Cover"
+          aria-label="Set as album cover"
         >
           <ImageIcon className="w-3 h-3" /> Cover
         </button>
         <button
+          type="button"
           onClick={() => onDelete(photo)}
           className="p-1.5 bg-red-500/90 text-white rounded-lg hover:bg-red-500 transition-colors"
           title="Delete Photo"
+          aria-label="Delete photo"
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -131,7 +121,7 @@ export function PhotoManager({
 }) {
   const [photos, setPhotos] = useState(initialPhotos);
   const [coverKey, setCoverKey] = useState(currentCoverKey);
-  const [isPending, startTransition] = useTransition();
+  const [_isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -162,9 +152,7 @@ export function PhotoManager({
     }
   };
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
@@ -278,16 +266,9 @@ export function PhotoManager({
           <p className="text-xs mt-1">Upload memories to get started</p>
         </div>
       ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <SortableContext
-              items={photos.map((p) => p.id)}
-              strategy={rectSortingStrategy}
-            >
+            <SortableContext items={photos.map((p) => p.id)} strategy={rectSortingStrategy}>
               {photos.map((photo) => (
                 <SortablePhoto
                   key={photo.id}

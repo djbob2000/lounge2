@@ -1,18 +1,18 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import {
   Camera,
-  LayoutDashboard,
-  Layers,
   Image as ImageIcon,
+  Layers,
+  LayoutDashboard,
+  LogOut,
   MonitorPlay,
   Settings,
-  LogOut,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 export function AdminSidebar() {
   const pathname = usePathname();
@@ -38,20 +38,15 @@ export function AdminSidebar() {
           <Camera className="w-5 h-5" />
         </div>
         <div>
-          <h1 className="text-sm font-bold leading-tight uppercase tracking-wider">
-            LensAdmin
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Management Console
-          </p>
+          <h1 className="text-sm font-bold leading-tight uppercase tracking-wider">LensAdmin</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Management Console</p>
         </div>
       </div>
 
       <nav className="flex-1 px-4 space-y-1 mt-4">
         {navItems.map((item) => {
           const isActive =
-            pathname === item.href ||
-            (item.href !== "/admin" && pathname.startsWith(item.href));
+            pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
@@ -98,14 +93,13 @@ export function AdminSidebar() {
             {session?.user?.name?.[0]?.toUpperCase() || "A"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate">
-              {session?.user?.name || "Admin"}
-            </p>
+            <p className="text-sm font-semibold truncate">{session?.user?.name || "Admin"}</p>
             <p className="text-[10px] text-slate-500 truncate uppercase mt-0.5">
               {session?.user?.email}
             </p>
           </div>
           <button
+            type="button"
             onClick={handleLogout}
             className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors shrink-0 outline-none"
             title="Sign out"

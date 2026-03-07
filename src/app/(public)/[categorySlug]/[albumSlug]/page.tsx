@@ -1,10 +1,10 @@
-import { notFound } from "next/navigation";
-import { db } from "@/db";
-import { albums, photos, categories } from "@/db/schema";
-import { eq, asc } from "drizzle-orm";
-import Link from "next/link";
+import { asc, eq } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { PhotoViewer } from "@/components/photo-viewer";
+import { db } from "@/db";
+import { albums, categories, photos } from "@/db/schema";
 
 export async function generateStaticParams() {
   const albumsWithCats = await db
@@ -64,15 +64,11 @@ export default async function AlbumPage(props: {
 
       {albumPhotos.length > 0 ? (
         <div className="w-full max-w-[1920px] mx-auto group">
-          <PhotoViewer
-            photos={albumPhotos.map((p) => ({ id: p.id, url: p.url }))}
-          />
+          <PhotoViewer photos={albumPhotos.map((p) => ({ id: p.id, url: p.url }))} />
         </div>
       ) : (
         <div className="max-w-7xl mx-auto px-6 py-32 text-center text-slate-500 border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20">
-          <p className="tracking-widest uppercase text-sm">
-            This collection is empty.
-          </p>
+          <p className="tracking-widest uppercase text-sm">This collection is empty.</p>
         </div>
       )}
     </div>

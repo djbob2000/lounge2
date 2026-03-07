@@ -1,14 +1,11 @@
 "use server";
 
-import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { randomUUID } from "node:crypto";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2Client } from "@/lib/r2";
-import { randomUUID } from "crypto";
 
-export async function getPresignedUploadUrl(
-  filename: string,
-  contentType: string,
-) {
+export async function getPresignedUploadUrl(filename: string, contentType: string) {
   const ext = filename.split(".").pop();
   const key = `${randomUUID()}.${ext}`;
 
