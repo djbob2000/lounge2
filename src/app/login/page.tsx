@@ -1,9 +1,9 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { Logo } from "@/components/logo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -34,13 +34,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display p-6">
-      <div className="w-full max-w-sm flex flex-col items-center mb-8">
-        <div className="text-primary mb-4 p-4 rounded-xl bg-primary/10">
-          <Sparkles className="w-8 h-8" />
+      <div className="w-full max-w-sm flex flex-col items-center mb-10">
+        <div className="text-primary mb-6 transition-transform hover:scale-110 duration-500">
+          <Logo className="w-16 h-16" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Admin Console</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 text-center">
-          Sign in to manage your portfolio
+        <h1 className="text-2xl font-black tracking-[0.2em]">Elena Marinych</h1>
+        <div className="h-[2px] w-12 bg-primary/40 mt-2 mb-4"></div>
+        <p className="text-xs tracking-widest uppercase text-slate-500 dark:text-slate-400 text-center font-medium opacity-80">
+          Management Console
         </p>
       </div>
 

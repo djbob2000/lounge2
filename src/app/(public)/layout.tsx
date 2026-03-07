@@ -1,8 +1,8 @@
 import { asc } from "drizzle-orm";
-import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
+import { Logo } from "@/components/logo";
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const allCategories = await db.query.categories.findMany({
@@ -17,9 +17,9 @@ export default async function PublicLayout({ children }: { children: React.React
           className="flex flex-col items-center gap-2 mb-10 group cursor-pointer outline-none"
         >
           <div className="text-primary transform transition-transform group-hover:scale-110 duration-500 ease-out">
-            <Sparkles className="w-12 h-12" />
+            <Logo className="w-12 h-12" />
           </div>
-          <h1 className="text-3xl font-bold tracking-widest uppercase mt-2 group-hover:text-primary transition-colors duration-300">
+          <h1 className="text-3xl font-bold tracking-widest mt-2 group-hover:text-primary transition-colors duration-300">
             Elena Marinych
           </h1>
           <div className="h-px w-12 bg-primary/40 mt-1 transition-all duration-500 group-hover:w-24 group-hover:bg-primary"></div>

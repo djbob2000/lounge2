@@ -1,11 +1,27 @@
 import { LayoutDashboard } from "lucide-react";
+import Link from "next/link";
+import { Logo } from "@/components/logo";
 
 export default function AdminDashboardPage() {
   return (
     <div className="w-full">
       <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-4 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold tracking-tight">Dashboard Overview</h2>
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center gap-2.5 group cursor-pointer outline-none">
+            <div className="text-primary transform transition-transform group-hover:scale-110 duration-500 ease-out">
+              <Logo className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <h1 className="text-xs font-black tracking-[0.2em] group-hover:text-primary transition-colors duration-300 leading-none">
+                Elena Marinych
+              </h1>
+              <div className="h-[1px] w-4 bg-primary/40 mt-1 transition-all duration-500 group-hover:w-full group-hover:bg-primary"></div>
+            </div>
+          </Link>
+          <div className="h-4 w-px bg-slate-200 dark:bg-slate-800" />
+          <h2 className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+            Dashboard Overview
+          </h2>
         </div>
       </header>
 

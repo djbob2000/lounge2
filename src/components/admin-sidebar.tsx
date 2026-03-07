@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Camera,
   Image as ImageIcon,
   Layers,
   LayoutDashboard,
@@ -13,6 +12,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/logo";
 
 export function AdminSidebar() {
   const pathname = usePathname();
@@ -33,15 +33,18 @@ export function AdminSidebar() {
 
   return (
     <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex flex-col fixed h-full z-30">
-      <div className="p-6 flex items-center gap-3">
-        <div className="bg-primary/10 text-primary p-2 rounded-lg">
-          <Camera className="w-5 h-5" />
+      <Link
+        href="/"
+        className="p-8 flex flex-col items-center gap-2 group cursor-pointer outline-none border-b border-slate-100 dark:border-slate-800/50 mb-4"
+      >
+        <div className="text-primary transform transition-transform group-hover:scale-110 duration-500 ease-out">
+          <Logo className="w-8 h-8" />
         </div>
-        <div>
-          <h1 className="text-sm font-bold leading-tight uppercase tracking-wider">LensAdmin</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Management Console</p>
-        </div>
-      </div>
+        <h1 className="text-xs font-black tracking-[0.2em] group-hover:text-primary transition-colors duration-300 text-center">
+          Elena Marinych
+        </h1>
+        <div className="h-[1px] w-8 bg-primary/40 mt-1 transition-all duration-500 group-hover:w-16 group-hover:bg-primary"></div>
+      </Link>
 
       <nav className="flex-1 px-4 space-y-1 mt-4">
         {navItems.map((item) => {
