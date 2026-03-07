@@ -1,0 +1,94 @@
+"use client";
+
+import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { Sparkles } from "lucide-react";
+
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const { data, error } = await authClient.signIn.email({
+      email,
+      password,
+    });
+
+    if (error) {
+      setError(error.message || "Invalid credentials");
+      setLoading(false);
+      return;
+    }
+
+    router.push("/admin");
+    router.refresh();
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display p-6">
+      <div className="w-full max-w-sm flex flex-col items-center mb-8">
+        <div className="text-primary mb-4 p-4 rounded-xl bg-primary/10">
+          <Sparkles className="w-8 h-8" />
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight">Admin Console</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 text-center">
+          Sign in to manage your portfolio
+        </p>
+      </div>
+
+      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 p-8">
+        <form onSubmit={handleLogin} className="space-y-6">
+          {error && (
+            <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/10 dark:text-red-400 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-300">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm outline-none"
+              placeholder="admin@example.com"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-300">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm outline-none"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 px-4 bg-primary text-white text-sm font-bold tracking-wide rounded-xl hover:bg-primary/90 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Signing in..." : "Sign In"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

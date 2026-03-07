@@ -1,0 +1,53 @@
+import { notFound } from "next/navigation";
+import { db } from "@/db";
+import { albums, photos } from "@/db/schema";
+import { eq, asc } from "drizzle-orm";
+import { PhotoManager } from "@/components/admin/photo-manager";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+
+export const dynamic = "force-dynamic";
+
+export default async function AdminAlbumPage(props: {
+  params: Promise<{ id: string }>;
+}) {
+  const params = await props.params;
+  const albumId = params.id;
+
+  const album = await db.query.albums.findFirst({
+    where: eq(albums.id, albumId),
+  });
+
+  if (!album) return notFound();
+
+  const allPhotos = await db.query.photos.findMany({
+    where: eq(photos.albumId, albumId),
+    orderBy: [asc(photos.position)],
+  });
+
+  return (
+    <div className="w-full">
+      <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-4 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/admin/albums"
+            className="p-2 -ml-2 text-slate-400 hover:text-primary transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <h2 className="text-lg font-semibold tracking-tight">
+            Album / {album.title}
+          </h2>
+        </div>
+      </header>
+
+      <div className="p-8 max-w-6xl mx-auto">
+        <PhotoManager
+          albumId={album.id}
+          currentCoverKey={album.coverImageKey}
+          initialPhotos={allPhotos}
+        />
+      </div>
+    </div>
+  );
+}
