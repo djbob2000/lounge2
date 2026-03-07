@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1754cf",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                        "neutral-light": "#ffffff",
+                        "neutral-dark": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                },
+            },
+        }
+    </script>
+<title>Portfolio Admin - Categories</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="flex min-h-screen">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex flex-col fixed h-full">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary/10 text-primary p-2 rounded-lg">
+<span class="material-symbols-outlined">photo_camera</span>
+</div>
+<div>
+<h1 class="text-sm font-bold leading-tight">LensAdmin</h1>
+<p class="text-xs text-slate-500 dark:text-slate-400">Management Console</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1 mt-4">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary" href="#">
+<span class="material-symbols-outlined text-[20px]">layers</span>
+<span class="text-sm font-medium">Categories</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">photo_library</span>
+<span class="text-sm font-medium">Albums</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">view_carousel</span>
+<span class="text-sm font-medium">Home Slider</span>
+</a>
+<div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</div>
+</nav>
+<div class="p-4 border-t border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+<div class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+<img alt="Admin Avatar" data-alt="Admin user profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBm58XdGbZhMrPzMs2nHnNGyfaopvi4ALvZRvtRJAATcGCmHqRGqyNTzQHxAM2XTxhmviAp40SZjVnuz0_V5IqA8Bqvu_nxw5thGP4J7ZaxIzjR_McQ3WZxv1dJWwJQLf9z881Ut7S_r0ztSyBwXPDmjOz2YLeTZmNViaMNAeB_l-7hLWyAQi6h98ZUmurW0DnTQip6tWNWBEJnPAEDD4c9GJ4JEVvy2acRkUcf2xq3LORW73ILIx9w2ElfscmqDIJ1AR0ZTdof5yY"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-xs font-semibold truncate">Alex Rivera</p>
+<p class="text-[10px] text-slate-500 truncate">Pro Photographer</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-[18px]">logout</span>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="ml-64 flex-1">
+<!-- Header -->
+<header class="sticky top-0 z-10 flex items-center justify-between px-8 py-4 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-4">
+<h2 class="text-lg font-semibold tracking-tight">Categories Management</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary/50 transition-all" placeholder="Search categories..." type="text"/>
+</div>
+<button class="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary/90 transition-all shadow-sm shadow-primary/20">
+                        Save Changes
+                    </button>
+</div>
+</header>
+<div class="p-8 max-w-5xl mx-auto">
+<!-- Page Intro -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+<div>
+<h3 class="text-2xl font-bold">Portfolio Categories</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Drag and drop to reorder categories. This affects the navigation menu on your site.</p>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                        Add New Category
+                    </button>
+</div>
+<!-- Category List -->
+<div class="space-y-3">
+<!-- Category Item 1 -->
+<div class="group flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-primary/50 transition-all cursor-move">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600 group-hover:text-primary transition-colors">drag_indicator</span>
+<div class="size-12 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-primary overflow-hidden">
+<img alt="Sketches" class="object-cover w-full h-full" data-alt="Artistic sketch or drawing thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAq3V8q63KPP4Gt9oUWr7xbh3KeqIJSJJdYUNCqvA3sRv1KYKlzBeik4BetMmMivGLDuy5CV0G6t18Ask5Z2nfqcEVanjr95JlnulZxOyJJDpdWJueWANG9yDQJLKJ7Ha38nB8Yi_5CyNJntCFViFgEVDW88--OYGvw9zGVsMOiyJt4VILE9pBMqNKJMz4IvifG-YbIcDDdFDIkvbZbbOMihz2UvXPArgYbpoYmpE9hbWNV1bWyAZU2jrScrRKIvbwjoskX2ta8zYc"/>
+</div>
+<div>
+<h4 class="text-sm font-bold">Sketches</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">12 items · Last updated 2 days ago</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Category Item 2 -->
+<div class="group flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-primary/50 transition-all cursor-move">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600 group-hover:text-primary transition-colors">drag_indicator</span>
+<div class="size-12 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-primary overflow-hidden">
+<img alt="Nature" class="object-cover w-full h-full" data-alt="Dense green forest nature landscape" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8jpjMJO-FQX2wh-H-id4SgPMjD96h54PUIZFjwX09ORGpOvija_AtcezWxWKr30ThKA2Zn0jXPZAHzZRLYDQMbO5sBSAdC4FK59oSahvqwXDa5mKyCiSEoDk9tRIsSQazZA7QP-kC5KPQegdqRZhq11-fbUVX4-bXMWBj90eDl8wJ_enF2AClBgaZJmBfWlAheB0DLU0b72vMcqNPdhNBgQYs-5ac6Nz5843st9yHiFSdUfwuwb99muGxkK6xp9PChaLMYGBFMYg"/>
+</div>
+<div>
+<h4 class="text-sm font-bold">Nature</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">45 items · Last updated 1 week ago</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Category Item 3 -->
+<div class="group flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-primary/50 transition-all cursor-move">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600 group-hover:text-primary transition-colors">drag_indicator</span>
+<div class="size-12 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-primary overflow-hidden">
+<img alt="People" class="object-cover w-full h-full" data-alt="Cinematic portrait of a person" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGS0Fnw6Xiw9npdGsDrEuMrzBk2dce4RuIKeA5wL85gZ06cBAMka_Dtg-8H_SEaAqc00P4Svf5ESdQpizqkl8BpaQZMTObnTxZM3Uv1jYR5keLTHIH4JrfJx9lcleeckmJ1XXeddDJKepi1JcYkfi15GH1kxrtJCa7_oaitP1btCkQO1gtSvtCZMDNbEIVezYaupOewwpHiXksh6vIgNKSrq77PQmL3fnyOYVtu_-hJMVfg7cO5gmH5ORrY8z2XAwgXZEY_2DzYNs"/>
+</div>
+<div>
+<h4 class="text-sm font-bold">People</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">32 items · Last updated 3 weeks ago</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Category Item 4 -->
+<div class="group flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-primary/50 transition-all cursor-move">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600 group-hover:text-primary transition-colors">drag_indicator</span>
+<div class="size-12 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-primary overflow-hidden">
+<img alt="Architecture" class="object-cover w-full h-full" data-alt="Modern architecture glass building facade" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoTGfZE1C_WiB6-jfYaJz6hgZKvoErID4nyQP1ZVzeQ8zWrPbFBW3NCmFJP6GnXYTKl_TVPLH7pMVQFLcMuKm8O1b79i8hMJGz7TwNBSSIHIjpKDOyud9b8NRsbZuqFF0qw9MNFgb6dbqwGOxW561p142PJuJ3aksct1r2xrX5zKjkb7dMY6HYbBodqJWz5YZPnLFko1VRUxXVK9ipNFCvlLj2XFdd58ITK8hQQBvO7c0KDMInABdLNh57DbaMN6TYJTxFwvY8VpQ"/>
+</div>
+<div>
+<h4 class="text-sm font-bold">Architecture</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">18 items · Last updated 1 month ago</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Category Item 5 -->
+<div class="group flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-primary/50 transition-all cursor-move">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600 group-hover:text-primary transition-colors">drag_indicator</span>
+<div class="size-12 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-primary overflow-hidden">
+<img alt="Commercial" class="object-cover w-full h-full" data-alt="Studio product photography red shoe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5uzIXlDuPPsheao3wxHGPikdTQK5cz4WunnByvTjZBj8S8YNgvplPfsRp1ZJHOnVI2iUYKJ5kGjTxswl5IGO4WO7kiudSydRJidOYI8DuEFkdMUk0cqHHEKKGvN__HYIgxbYjKs_myDaDjXHJza78tNHwh8C-Xaxg3F773XWgS2-8IK4yqqDf98eSH89rWGwwmp_4jyT82Y5j-NYw6XFcBPScxZeZBqrDxf3AmlilalCkdaH55ddnAN8UQ0YZ5gCgsVlZH0hwvXQ"/>
+</div>
+<div>
+<h4 class="text-sm font-bold">Commercial</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">24 items · Last updated 2 months ago</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Footer Hint -->
+<div class="mt-8 flex items-center justify-center p-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-800/20">
+<p class="text-sm text-slate-400">Add more categories to showcase different photography styles.</p>
+</div>
+</div>
+</main>
+</div>
+</body></html>
