@@ -18,6 +18,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Edit, Eye, EyeOff, GripVertical, Image as ImageIcon, Plus, Trash2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import slugify from "slugify";
@@ -93,13 +94,14 @@ function SortableItem({
         >
           <GripVertical className="w-5 h-5" />
         </button>
-        <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-muted-foreground overflow-hidden shrink-0">
+        <div className="relative w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-muted-foreground overflow-hidden shrink-0">
           {album.coverImageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={album.coverImageUrl}
               alt={album.title}
-              className="w-full h-full object-cover"
+              fill
+              sizes="48px"
+              className="object-cover"
             />
           ) : (
             <ImageIcon className="w-5 h-5" />

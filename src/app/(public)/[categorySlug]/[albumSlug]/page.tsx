@@ -2,6 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { PhotoViewer } from "@/components/photo-viewer";
 import { db } from "@/db";
 import { albums, categories, photos } from "@/db/schema";
@@ -63,8 +64,10 @@ export default async function AlbumPage(props: {
       </div>
 
       {albumPhotos.length > 0 ? (
-        <div className="w-full max-w-[1920px] mx-auto group">
-          <PhotoViewer photos={albumPhotos.map((p) => ({ id: p.id, url: p.url }))} />
+        <div className="w-full max-w-[1920px] mx-auto">
+          <Suspense fallback={null}>
+            <PhotoViewer photos={albumPhotos.map((p) => ({ id: p.id, url: p.url }))} />
+          </Suspense>
         </div>
       ) : (
         <div className="max-w-7xl mx-auto px-6 py-32 text-center text-muted-foreground border border-dashed border-border bg-muted/20">

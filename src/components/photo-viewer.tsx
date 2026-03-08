@@ -1,7 +1,9 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type Photo = {
   id: string;
@@ -9,23 +11,57 @@ type Photo = {
 };
 
 export function PhotoViewer({ photos }: { photos: Photo[] }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [isOpen, setIsOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const photoId = searchParams.get("photo");
+    if (photoId) {
+      const idx = photos.findIndex((p) => p.id === photoId);
+      if (idx !== -1) {
+        setCurrentIndex(idx);
+        setIsOpen(true);
+      }
+    } else {
+      setIsOpen(false);
+    }
+  }, [searchParams, photos]);
 
   const openViewer = (index: number) => {
     setCurrentIndex(index);
     setIsOpen(true);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("photo", photos[index].id);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  const closeViewer = useCallback(() => setIsOpen(false), []);
+  const closeViewer = () => {
+    setIsOpen(false);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("photo");
+    const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+    router.push(newUrl, { scroll: false });
+  };
 
-  const nextSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % photos.length);
-  }, [photos.length]);
+  const nextSlide = () => {
+    const newIndex = (currentIndex + 1) % photos.length;
+    setCurrentIndex(newIndex);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("photo", photos[newIndex].id);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
-  const prevSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
-  }, [photos.length]);
+  const prevSlide = () => {
+    const newIndex = (currentIndex - 1 + photos.length) % photos.length;
+    setCurrentIndex(newIndex);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("photo", photos[newIndex].id);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -92,12 +128,16 @@ export function PhotoViewer({ photos }: { photos: Photo[] }) {
           )}
 
           <div className="relative w-full h-full flex items-center justify-center p-4 sm:p-12 z-40">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={photos[currentIndex].url}
-              alt="Expanded view"
-              className="max-w-full max-h-full object-contain shadow-2xl animate-in fade-in duration-300"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={photos[currentIndex].url}
+                alt="Expanded view"
+                fill
+                priority
+                sizes="100vw"
+                className="object-contain drop-shadow-2xl animate-in fade-in duration-300"
+              />
+            </div>
           </div>
 
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/30 text-sm tracking-widest font-mono z-50">
