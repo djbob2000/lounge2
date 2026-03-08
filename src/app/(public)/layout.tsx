@@ -2,6 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { Facebook, Globe, Instagram } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { ModeToggle } from "@/components/mode-toggle";
 import { db } from "@/db";
 import { categories, siteSettings } from "@/db/schema";
 
@@ -19,6 +20,9 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground font-display selection:bg-primary/20">
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-50">
+        <ModeToggle />
+      </div>
       <header className="flex flex-col items-center pt-12 pb-8 px-6 transition-colors">
         <Link
           href="/"
