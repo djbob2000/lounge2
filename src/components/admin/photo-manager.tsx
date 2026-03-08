@@ -17,7 +17,8 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripHorizontal, Image as ImageIcon, Star, Trash2, UploadCloud } from "lucide-react";
+import imageCompression from "browser-image-compression";
+import { Edit, GripHorizontal, Image as ImageIcon, Star, Trash2, UploadCloud } from "lucide-react";
 import { useState, useTransition } from "react";
 import {
   deletePhotoDb,
@@ -25,10 +26,19 @@ import {
   savePhotoToDb,
   setAlbumCover,
   togglePhotoSlider,
+  updatePhotoDescription,
 } from "@/actions/photos";
 import { getPresignedUploadUrl } from "@/actions/upload";
 import { Button } from "@/components/ui/button";
-import imageCompression from "browser-image-compression";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
 type Photo = {
   id: string;
@@ -36,6 +46,7 @@ type Photo = {
   r2Key: string;
   position: number;
   isSliderImage: boolean;
+  description?: string | null;
 };
 
 function SortablePhoto({
@@ -43,12 +54,14 @@ function SortablePhoto({
   onDelete,
   onSetCover,
   onToggleSlider,
+  onEdit,
   isCover,
 }: {
   photo: Photo;
   onDelete: (p: Photo) => void;
   onSetCover: (p: Photo) => void;
   onToggleSlider: (p: Photo) => void;
+  onEdit: (p: Photo) => void;
   isCover: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -122,6 +135,13 @@ function SortablePhoto({
         </button>
         <button
           type="button"
+          onClick={() => onEdit(photo)}
+          className="flex-1 text-xs font-semibold py-1.5 bg-background/90 text-foreground rounded-lg hover:bg-background transition-colors flex items-center justify-center gap-1"
+        >
+          <Edit className="w-3 h-3" /> Edit
+        </button>
+        <button
+          type="button"
           onClick={() => onDelete(photo)}
           className="p-1.5 bg-destructive/90 text-destructive-foreground rounded-lg hover:bg-destructive transition-colors"
         >
@@ -148,6 +168,10 @@ export function PhotoManager({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isDragOver, setIsDragOver] = useState(false);
   const [, setDragCounter] = useState(0);
+
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Photo | null>(null);
+  const [editDescription, setEditDescription] = useState("");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -291,6 +315,18 @@ export function PhotoManager({
     });
   };
 
+  const handleEditSave = async () => {
+    if (!editTarget) return;
+    startTransition(async () => {
+      await updatePhotoDescription(editTarget.id, editDescription, albumId);
+      setPhotos((prev) =>
+        prev.map((p) => (p.id === editTarget.id ? { ...p, description: editDescription } : p)),
+      );
+      setIsEditOpen(false);
+      setEditTarget(null);
+    });
+  };
+
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: this is a drag and drop zone
     <div
@@ -385,12 +421,46 @@ export function PhotoManager({
                   onDelete={handleDelete}
                   onSetCover={handleSetCover}
                   onToggleSlider={handleToggleSlider}
+                  onEdit={(p) => {
+                    setEditTarget(p);
+                    setEditDescription(p.description || "");
+                    setIsEditOpen(true);
+                  }}
                 />
               ))}
             </SortableContext>
           </div>
         </DndContext>
       )}
+
+      <Dialog
+        open={isEditOpen}
+        onOpenChange={(open) => {
+          setIsEditOpen(open);
+          if (!open) setEditTarget(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Photo</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-1">
+              <Label>Description</Label>
+              <RichTextEditor
+                value={editDescription}
+                onChange={setEditDescription}
+                placeholder="Photo description..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleEditSave} disabled={isUploading}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -6,7 +6,12 @@ import { db } from "@/db";
 import { albums, photos } from "@/db/schema";
 import { deletePublicFile } from "./upload";
 
-export async function createAlbum(categoryId: string, title: string, slug: string) {
+export async function createAlbum(
+  categoryId: string,
+  title: string,
+  slug: string,
+  description: string | null = null,
+) {
   try {
     const existing = await db.query.albums.findMany({
       where: eq(albums.categoryId, categoryId),
@@ -17,6 +22,7 @@ export async function createAlbum(categoryId: string, title: string, slug: strin
         categoryId,
         title,
         slug,
+        description,
         position: existing.length,
       })
       .returning();
@@ -28,9 +34,15 @@ export async function createAlbum(categoryId: string, title: string, slug: strin
   }
 }
 
-export async function updateAlbum(id: string, categoryId: string, title: string, slug: string) {
+export async function updateAlbum(
+  id: string,
+  categoryId: string,
+  title: string,
+  slug: string,
+  description: string | null = null,
+) {
   try {
-    await db.update(albums).set({ categoryId, title, slug }).where(eq(albums.id, id));
+    await db.update(albums).set({ categoryId, title, slug, description }).where(eq(albums.id, id));
     revalidatePath("/admin/albums");
     revalidatePath("/", "layout");
     return { success: true };

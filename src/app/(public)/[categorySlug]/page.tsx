@@ -48,6 +48,14 @@ export default async function CategoryPage(props: { params: Promise<{ categorySl
         </p>
       </div>
 
+      {category.description && (
+        <div
+          className="prose prose-sm dark:prose-invert max-w-2xl mx-auto mb-16 text-center"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: Trusted content from admin
+          dangerouslySetInnerHTML={{ __html: category.description }}
+        />
+      )}
+
       {publishedAlbums.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {publishedAlbums.map((album) => (

@@ -112,3 +112,20 @@ export async function togglePhotoSlider(id: string, isSliderImage: boolean, albu
     return { success: false, error: "Failed to toggle slider image status" };
   }
 }
+
+export async function updatePhotoDescription(
+  id: string,
+  description: string | null,
+  albumId?: string,
+) {
+  try {
+    await db.update(photos).set({ description }).where(eq(photos.id, id));
+    if (albumId) {
+      revalidatePath(`/admin/albums/${albumId}`);
+    }
+    revalidatePath("/");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to update photo description" };
+  }
+}

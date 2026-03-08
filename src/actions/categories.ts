@@ -3,10 +3,15 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { categories, albums, photos } from "@/db/schema";
+import { albums, categories, photos } from "@/db/schema";
 import { deletePublicFile } from "./upload";
 
-export async function createCategory(name: string, slug: string, showInMenu: boolean = true) {
+export async function createCategory(
+  name: string,
+  slug: string,
+  showInMenu: boolean = true,
+  description: string | null = null,
+) {
   try {
     const all = await db.query.categories.findMany();
     const [inserted] = await db
@@ -15,6 +20,7 @@ export async function createCategory(name: string, slug: string, showInMenu: boo
         name,
         slug,
         showInMenu,
+        description,
         position: all.length,
       })
       .returning();
@@ -29,9 +35,18 @@ export async function createCategory(name: string, slug: string, showInMenu: boo
   }
 }
 
-export async function updateCategory(id: string, name: string, slug: string, showInMenu: boolean) {
+export async function updateCategory(
+  id: string,
+  name: string,
+  slug: string,
+  showInMenu: boolean,
+  description: string | null = null,
+) {
   try {
-    await db.update(categories).set({ name, slug, showInMenu }).where(eq(categories.id, id));
+    await db
+      .update(categories)
+      .set({ name, slug, showInMenu, description })
+      .where(eq(categories.id, id));
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
     return { success: true };

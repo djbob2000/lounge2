@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 type Photo = {
   id: string;
   url: string;
+  description?: string | null;
 };
 
 export function PhotoViewer({ photos }: { photos: Photo[] }) {
@@ -127,7 +128,7 @@ export function PhotoViewer({ photos }: { photos: Photo[] }) {
             </>
           )}
 
-          <div className="relative w-full h-full flex items-center justify-center p-4 sm:p-12 z-40">
+          <div className="relative w-full h-full flex flex-col items-center justify-center p-4 sm:p-12 z-40">
             <div className="relative w-full h-full">
               <Image
                 src={photos[currentIndex].url}
@@ -138,6 +139,13 @@ export function PhotoViewer({ photos }: { photos: Photo[] }) {
                 className="object-contain drop-shadow-2xl animate-in fade-in duration-300"
               />
             </div>
+            {photos[currentIndex].description && (
+              <div
+                className="mt-6 prose prose-sm dark:prose-invert text-white/90 bg-black/40 backdrop-blur-md max-w-2xl w-full p-4 rounded-xl text-center"
+                // biome-ignore lint/security/noDangerouslySetInnerHtml: Trusted content
+                dangerouslySetInnerHTML={{ __html: photos[currentIndex].description as string }}
+              />
+            )}
           </div>
 
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/30 text-sm tracking-widest font-mono z-50">

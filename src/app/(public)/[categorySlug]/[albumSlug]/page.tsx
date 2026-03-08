@@ -57,16 +57,29 @@ export default async function AlbumPage(props: {
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
             {album.title}
           </h1>
-          <p className="text-muted-foreground text-sm tracking-widest uppercase">
+          <p className="text-muted-foreground text-sm tracking-widest uppercase mb-6">
             {albumPhotos.length} {albumPhotos.length === 1 ? "Shot" : "Shots"}
           </p>
+          {album.description && (
+            <div
+              className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground"
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: Trusted content from admin
+              dangerouslySetInnerHTML={{ __html: album.description }}
+            />
+          )}
         </div>
       </div>
 
       {albumPhotos.length > 0 ? (
         <div className="w-full max-w-[1920px] mx-auto">
           <Suspense fallback={null}>
-            <PhotoViewer photos={albumPhotos.map((p) => ({ id: p.id, url: p.url }))} />
+            <PhotoViewer
+              photos={albumPhotos.map((p) => ({
+                id: p.id,
+                url: p.url,
+                description: p.description,
+              }))}
+            />
           </Suspense>
         </div>
       ) : (

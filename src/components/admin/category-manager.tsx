@@ -18,10 +18,10 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Edit, EyeOff, GripVertical, Image as ImageIcon, Plus, Trash2 } from "lucide-react";
+import NextImage from "next/image";
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import slugify from "slugify";
-import Link from "next/link";
-import NextImage from "next/image";
 
 import {
   createCategory,
@@ -39,6 +39,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
 type Category = {
   id: string;
@@ -46,6 +48,7 @@ type Category = {
   slug: string;
   position: number;
   showInMenu: boolean;
+  description?: string | null;
   albums?: {
     id: string;
     title: string;
@@ -186,7 +189,12 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Category | null>(null);
 
-  const [formData, setFormData] = useState({ name: "", slug: "", showInMenu: true });
+  const [formData, setFormData] = useState({
+    name: "",
+    slug: "",
+    showInMenu: true,
+    description: "",
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -217,12 +225,17 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
 
   const handleCreate = async () => {
     startTransition(async () => {
-      const res = await createCategory(formData.name, formData.slug, formData.showInMenu);
+      const res = await createCategory(
+        formData.name,
+        formData.slug,
+        formData.showInMenu,
+        formData.description,
+      );
       if (res.success && res.category) {
         setCategories((prev) => [...prev, res.category as Category]);
       }
       setIsCreateOpen(false);
-      setFormData({ name: "", slug: "", showInMenu: true });
+      setFormData({ name: "", slug: "", showInMenu: true, description: "" });
     });
   };
 
@@ -234,12 +247,19 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
         formData.name,
         formData.slug,
         formData.showInMenu,
+        formData.description,
       );
       if (res.success) {
         setCategories((prev) =>
           prev.map((c) =>
             c.id === editTarget.id
-              ? { ...c, name: formData.name, slug: formData.slug, showInMenu: formData.showInMenu }
+              ? {
+                  ...c,
+                  name: formData.name,
+                  slug: formData.slug,
+                  showInMenu: formData.showInMenu,
+                  description: formData.description,
+                }
               : c,
           ),
         );
@@ -272,7 +292,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
           open={isCreateOpen}
           onOpenChange={(open) => {
             setIsCreateOpen(open);
-            if (!open) setFormData({ name: "", slug: "", showInMenu: true });
+            if (!open) setFormData({ name: "", slug: "", showInMenu: true, description: "" });
           }}
         >
           <DialogTrigger
@@ -301,6 +321,14 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
               />
+              <div className="space-y-1">
+                <Label>Description</Label>
+                <RichTextEditor
+                  value={formData.description}
+                  onChange={(val) => setFormData({ ...formData, description: val })}
+                  placeholder="Category description..."
+                />
+              </div>
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -351,6 +379,14 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
             />
+            <div className="space-y-1">
+              <Label>Description</Label>
+              <RichTextEditor
+                value={formData.description}
+                onChange={(val) => setFormData({ ...formData, description: val })}
+                placeholder="Category description..."
+              />
+            </div>
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
@@ -387,7 +423,12 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                 category={category}
                 onEdit={(c) => {
                   setEditTarget(c);
-                  setFormData({ name: c.name, slug: c.slug, showInMenu: c.showInMenu });
+                  setFormData({
+                    name: c.name,
+                    slug: c.slug,
+                    showInMenu: c.showInMenu,
+                    description: c.description || "",
+                  });
                   setIsEditOpen(true);
                 }}
                 onDelete={handleDelete}

@@ -39,6 +39,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
 type Album = {
   id: string;
@@ -48,6 +50,7 @@ type Album = {
   position: number;
   isHidden: boolean;
   coverImageUrl: string | null;
+  description?: string | null;
 };
 
 type Category = {
@@ -174,6 +177,7 @@ export function AlbumManager({
     title: "",
     slug: "",
     categoryId: selectedCategory,
+    description: "",
   });
 
   const filteredAlbums = albums
@@ -216,19 +220,30 @@ export function AlbumManager({
 
   const handleCreate = async () => {
     startTransition(async () => {
-      const res = await createAlbum(formData.categoryId, formData.title, formData.slug);
+      const res = await createAlbum(
+        formData.categoryId,
+        formData.title,
+        formData.slug,
+        formData.description,
+      );
       if (res.success && res.album) {
         setAlbums((prev) => [...prev, res.album as Album]);
       }
       setIsCreateOpen(false);
-      setFormData({ title: "", slug: "", categoryId: selectedCategory });
+      setFormData({ title: "", slug: "", categoryId: selectedCategory, description: "" });
     });
   };
 
   const handleEdit = async () => {
     if (!editTarget) return;
     startTransition(async () => {
-      await updateAlbum(editTarget.id, formData.categoryId, formData.title, formData.slug);
+      await updateAlbum(
+        editTarget.id,
+        formData.categoryId,
+        formData.title,
+        formData.slug,
+        formData.description,
+      );
       setIsEditOpen(false);
       setEditTarget(null);
     });
@@ -282,6 +297,7 @@ export function AlbumManager({
                 title: "",
                 slug: "",
                 categoryId: selectedCategory,
+                description: "",
               });
             else setFormData((p) => ({ ...p, categoryId: selectedCategory }));
           }}
@@ -318,6 +334,14 @@ export function AlbumManager({
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
               />
+              <div className="space-y-1">
+                <Label>Description</Label>
+                <RichTextEditor
+                  value={formData.description}
+                  onChange={(val) => setFormData({ ...formData, description: val })}
+                  placeholder="Album description..."
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button
@@ -364,6 +388,14 @@ export function AlbumManager({
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
             />
+            <div className="space-y-1">
+              <Label>Description</Label>
+              <RichTextEditor
+                value={formData.description}
+                onChange={(val) => setFormData({ ...formData, description: val })}
+                placeholder="Album description..."
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button onClick={handleEdit} disabled={!formData.title || !formData.slug || isPending}>
@@ -402,6 +434,7 @@ export function AlbumManager({
                       title: a.title,
                       slug: a.slug,
                       categoryId: a.categoryId,
+                      description: a.description || "",
                     });
                     setIsEditOpen(true);
                   }}

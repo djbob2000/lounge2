@@ -11,6 +11,7 @@ export const categories = pgTable("categories", {
   slug: text("slug").notNull().unique(),
   position: integer("position").notNull().default(0),
   showInMenu: boolean("showInMenu").notNull().default(true),
+  description: text("description"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 });
@@ -26,6 +27,7 @@ export const albums = pgTable("albums", {
   coverImageKey: text("coverImageKey"),
   isHidden: boolean("isHidden").notNull().default(false),
   position: integer("position").notNull().default(0),
+  description: text("description"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 });
@@ -40,6 +42,7 @@ export const photos = pgTable("photos", {
   isSliderImage: boolean("isSliderImage").notNull().default(false),
   position: integer("position").notNull().default(0),
   sliderPosition: integer("sliderPosition").notNull().default(0),
+  description: text("description"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
 
