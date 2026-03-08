@@ -17,9 +17,11 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Edit, GripVertical, Plus, Trash2 } from "lucide-react";
+import { Edit, EyeOff, GripVertical, Image as ImageIcon, Plus, Trash2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import slugify from "slugify";
+import Link from "next/link";
+import NextImage from "next/image";
 
 import {
   createCategory,
@@ -44,6 +46,13 @@ type Category = {
   slug: string;
   position: number;
   showInMenu: boolean;
+  albums?: {
+    id: string;
+    title: string;
+    slug: string;
+    isHidden: boolean;
+    coverImageUrl?: string | null;
+  }[];
 };
 
 function SortableItem({
@@ -68,45 +77,104 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group flex items-center justify-between p-4 bg-card border ${
+      className={`group flex flex-col p-4 bg-card border ${
         isDragging
           ? "border-primary shadow-lg z-10 relative"
           : "border-border hover:border-primary/50"
-      } rounded-xl transition-all`}
+      } rounded-xl transition-all ${!category.showInMenu ? "opacity-75" : ""}`}
     >
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          {...attributes}
-          {...listeners}
-          className="cursor-move text-muted-foreground/50 hover:text-primary transition-colors touch-none"
-          aria-label="Drag to reorder"
-        >
-          <GripVertical className="w-5 h-5" />
-        </button>
-        <div>
-          <h4 className="text-sm font-bold text-foreground">{category.name}</h4>
-          <p className="text-xs text-muted-foreground">/{category.slug}</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            {...attributes}
+            {...listeners}
+            className="cursor-move text-muted-foreground/50 hover:text-primary transition-colors touch-none"
+            aria-label="Drag to reorder"
+          >
+            <GripVertical className="w-5 h-5" />
+          </button>
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-bold text-foreground">{category.name}</h4>
+              {!category.showInMenu && (
+                <span className="flex items-center gap-1 rounded-md bg-secondary/50 px-1.5 py-0.5 text-[10px] font-semibold text-secondary-foreground border border-border/50">
+                  <EyeOff className="w-3 h-3" />
+                  Hidden from menu
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">/{category.slug}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            type="button"
+            onClick={() => onEdit(category)}
+            className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+            aria-label="Edit category"
+          >
+            <Edit className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete(category)}
+            className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
+            aria-label="Delete category"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
         </div>
       </div>
-      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          type="button"
-          onClick={() => onEdit(category)}
-          className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
-          aria-label="Edit category"
-        >
-          <Edit className="w-5 h-5" />
-        </button>
-        <button
-          type="button"
-          onClick={() => onDelete(category)}
-          className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
-          aria-label="Delete category"
-        >
-          <Trash2 className="w-5 h-5" />
-        </button>
-      </div>
+
+      {category.albums && category.albums.length > 0 && (
+        <div className="mt-4 ml-9 flex flex-wrap gap-3">
+          {category.albums.map((album) => (
+            <Link
+              key={album.id}
+              href={`/admin/albums/${album.id}`}
+              className={`group/album flex flex-col w-32 overflow-hidden rounded-lg border bg-card transition-all hover:border-primary/50 hover:shadow-md ${
+                album.isHidden ? "opacity-70 grayscale-[0.5] hover:grayscale-0" : ""
+              }`}
+              title={album.isHidden ? "Hidden Album" : undefined}
+            >
+              <div className="aspect-[4/3] relative w-full overflow-hidden border-b bg-muted/40">
+                {album.coverImageUrl ? (
+                  <NextImage
+                    src={album.coverImageUrl}
+                    alt={album.title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover/album:scale-110"
+                    sizes="128px"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <ImageIcon className="h-6 w-6 text-muted-foreground/20" />
+                  </div>
+                )}
+                {album.isHidden && (
+                  <div className="absolute right-1.5 top-1.5 rounded-full bg-background/80 p-1 backdrop-blur-md shadow-sm">
+                    <EyeOff className="h-3 w-3 text-foreground/80" />
+                  </div>
+                )}
+              </div>
+              <div className="p-2.5 bg-muted/10">
+                <span className="block truncate text-xs font-semibold text-foreground group-hover/album:text-primary transition-colors">
+                  {album.title}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {category.albums && category.albums.length === 0 && (
+        <div className="mt-3 ml-9">
+          <span className="text-[11px] text-muted-foreground/40 italic px-2">
+            No albums in this category
+          </span>
+        </div>
+      )}
     </div>
   );
 }

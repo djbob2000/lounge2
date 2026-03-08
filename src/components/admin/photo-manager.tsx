@@ -147,6 +147,7 @@ export function PhotoManager({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [, setDragCounter] = useState(0);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -232,18 +233,32 @@ export function PhotoManager({
     processFiles(event.target.files);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    setDragCounter((prev) => prev + 1);
     setIsDragOver(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragOver(false);
+    e.stopPropagation();
+    setDragCounter((prev) => {
+      const newCount = prev - 1;
+      if (newCount === 0) setIsDragOver(false);
+      return newCount;
+    });
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    setDragCounter(0);
     setIsDragOver(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       processFiles(e.dataTransfer.files);
@@ -277,7 +292,23 @@ export function PhotoManager({
   };
 
   return (
-    <>
+    // biome-ignore lint/a11y/noStaticElementInteractions: this is a drag and drop zone
+    <div
+      className="relative min-h-[60vh] rounded-xl transition-colors"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      {isDragOver && (
+        <div className="absolute -inset-4 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm border-2 border-primary border-dashed rounded-xl">
+          <div className="flex flex-col items-center pointer-events-none">
+            <UploadCloud className="w-16 h-16 mb-4 text-primary animate-bounce" />
+            <p className="text-2xl font-bold text-primary">Drop photos to upload</p>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h3 className="text-2xl font-bold">Manage Photos</h3>
@@ -324,9 +355,6 @@ export function PhotoManager({
       {photos.length === 0 ? (
         <label
           htmlFor="photos-upload"
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
           className={`mt-8 flex flex-col items-center justify-center py-24 border-2 border-dashed rounded-2xl cursor-pointer transition-colors ${
             isDragOver
               ? "border-primary bg-primary/5"
@@ -363,6 +391,6 @@ export function PhotoManager({
           </div>
         </DndContext>
       )}
-    </>
+    </div>
   );
 }
