@@ -28,6 +28,7 @@ import {
 } from "@/actions/photos";
 import { getPresignedUploadUrl } from "@/actions/upload";
 import { Button } from "@/components/ui/button";
+import imageCompression from "browser-image-compression";
 
 type Photo = {
   id: string;
@@ -183,16 +184,25 @@ export function PhotoManager({
     const totalFiles = files.length;
     let completed = 0;
 
+    const compressionOptions = {
+      maxWidthOrHeight: 2560,
+      useWebWorker: true,
+      initialQuality: 0.6,
+    };
+
     for (let i = 0; i < totalFiles; i++) {
-      const file = files[i];
+      let file = files[i];
       try {
+        // Compress image before upload
+        file = await imageCompression(files[i], compressionOptions);
+
         // 1. Get Presigned URL
-        const res = await getPresignedUploadUrl(file.name, file.type);
+        const res = await getPresignedUploadUrl(files[i].name, file.type);
         if (!res.success || !res.presignedUrl || !res.fileUrl || !res.key) {
           throw new Error("Failed to get presigned URL");
         }
 
-        // 2. Upload to Cloudflare R2
+        // 2. Upload to Cloudflare R2 / Backblaze B2
         await fetch(res.presignedUrl, {
           method: "PUT",
           headers: {

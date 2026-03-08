@@ -102,7 +102,7 @@ export function AdminSidebar({ siteName }: { siteName: string }) {
             <p className="text-sm font-semibold truncate text-foreground">
               {session?.user?.name || "Admin"}
             </p>
-            <p className="text-[10px] text-muted-foreground truncate uppercase mt-0.5">
+            <p className="text-[10px] text-muted-foreground truncate mt-0.5">
               {session?.user?.email}
             </p>
           </div>
