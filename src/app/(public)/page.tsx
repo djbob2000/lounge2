@@ -35,14 +35,14 @@ export default async function HomePage() {
     <>
       <HomeSlider images={formattedImages} />
 
-      {/* Featured Collections Grid */}
+      {/* Featured Albums Grid */}
       <section className="max-w-7xl mx-auto px-6 py-24">
         <div className="flex flex-col items-center mb-16 relative">
           <div className="absolute -top-10 text-[120px] font-bold text-muted/30 opacity-50 pointer-events-none select-none z-0 tracking-tighter uppercase whitespace-nowrap">
             WORKS
           </div>
           <h3 className="text-2xl font-bold tracking-tight text-foreground mb-2 relative z-10">
-            Featured Collections
+            Featured Albums
           </h3>
           <p className="text-muted-foreground text-sm italic relative z-10">
             Curated moments across landscapes and portraits
@@ -57,7 +57,7 @@ export default async function HomePage() {
                 href={`/${album.categorySlug}/${album.slug}`}
                 className="group cursor-pointer block focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-xl"
               >
-                <div className="relative aspect-[4/5] overflow-hidden rounded-xl mb-4 bg-muted animate-pulse">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-xl mb-4 bg-muted">
                   {album.coverImageUrl ? (
                     <div
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 ease-out"
@@ -66,8 +66,10 @@ export default async function HomePage() {
                       }}
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30">
-                      No Cover
+                    <div className="absolute inset-0 flex items-center justify-center p-8 text-center bg-muted/50 transition-colors group-hover:bg-muted opacity-40 group-hover:opacity-60">
+                      <span className="text-xs font-bold uppercase tracking-widest">
+                        {album.title}
+                      </span>
                     </div>
                   )}
                   {/* Subtle overlay on hover */}
