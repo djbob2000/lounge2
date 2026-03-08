@@ -5,8 +5,8 @@ import {
   Layers,
   LayoutDashboard,
   LogOut,
-  Settings,
   MonitorPlay,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -15,7 +15,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
-export function AdminSidebar() {
+export function AdminSidebar({ siteName }: { siteName: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = authClient.useSession();
@@ -42,7 +42,7 @@ export function AdminSidebar() {
           <Logo className="w-8 h-8" />
         </div>
         <h1 className="text-xs font-black tracking-[0.2em] group-hover:text-primary transition-colors duration-300 text-center">
-          Elena Marinych
+          {siteName}
         </h1>
         <div className="h-[1px] w-8 bg-primary/40 mt-1 transition-all duration-500 group-hover:w-16 group-hover:bg-primary"></div>
       </Link>

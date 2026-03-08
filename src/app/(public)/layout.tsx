@@ -1,14 +1,21 @@
 import { asc, eq } from "drizzle-orm";
+import { Facebook, Globe, Instagram } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { db } from "@/db";
-import { categories } from "@/db/schema";
+import { categories, siteSettings } from "@/db/schema";
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const allCategories = await db.query.categories.findMany({
     where: eq(categories.showInMenu, true),
     orderBy: [asc(categories.position)],
   });
+
+  const settings = await db.query.siteSettings.findFirst({
+    where: eq(siteSettings.id, "site_config"),
+  });
+
+  const siteName = settings?.siteName || "Elena Marinych";
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground font-display selection:bg-primary/20">
@@ -21,7 +28,7 @@ export default async function PublicLayout({ children }: { children: React.React
             <Logo className="w-12 h-12" />
           </div>
           <h1 className="text-3xl font-bold tracking-widest mt-2 group-hover:text-primary transition-colors duration-300">
-            Elena Marinych
+            {siteName}
           </h1>
           <div className="h-px w-12 bg-primary/40 mt-1 transition-all duration-500 group-hover:w-24 group-hover:bg-primary"></div>
         </Link>
@@ -39,13 +46,6 @@ export default async function PublicLayout({ children }: { children: React.React
               <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all duration-300 group-hover:w-full"></span>
             </Link>
           ))}
-          <Link
-            href="/about"
-            className="relative text-sm font-medium tracking-widest uppercase hover:text-primary transition-all duration-300 group"
-          >
-            About
-            <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all duration-300 group-hover:w-full"></span>
-          </Link>
         </nav>
       </header>
 
@@ -55,21 +55,42 @@ export default async function PublicLayout({ children }: { children: React.React
       <footer className="bg-background border-t border-border py-16 px-6 mt-auto">
         <div className="max-w-7xl mx-auto flex flex-col items-center">
           <div className="flex gap-8 mb-10">
-            <a
-              className="text-slate-400 hover:text-primary transform hover:-translate-y-1 transition-all duration-300"
-              href="https://instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" role="img">
-                <title>Instagram</title>
-                <path d="M12 2.163..."></path>
-              </svg>
-              <span className="sr-only">Instagram</span>
-            </a>
+            {settings?.instagramUrl && (
+              <a
+                className="text-muted-foreground hover:text-primary transform hover:-translate-y-1 transition-all duration-300"
+                href={settings.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Instagram className="w-5 h-5" />
+                <span className="sr-only">Instagram</span>
+              </a>
+            )}
+            {settings?.facebookUrl && (
+              <a
+                className="text-muted-foreground hover:text-primary transform hover:-translate-y-1 transition-all duration-300"
+                href={settings.facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Facebook className="w-5 h-5" />
+                <span className="sr-only">Facebook</span>
+              </a>
+            )}
+            {settings?.behanceUrl && (
+              <a
+                className="text-muted-foreground hover:text-primary transform hover:-translate-y-1 transition-all duration-300"
+                href={settings.behanceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Globe className="w-5 h-5" />
+                <span className="sr-only">Behance</span>
+              </a>
+            )}
           </div>
           <p className="text-muted-foreground text-xs tracking-widest uppercase opacity-80">
-            © {new Date().getFullYear()} Elena Marinych. All rights reserved.
+            © {new Date().getFullYear()} {siteName}. All rights reserved.
           </p>
         </div>
       </footer>

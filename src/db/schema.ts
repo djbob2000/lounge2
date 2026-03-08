@@ -42,3 +42,14 @@ export const photos = pgTable("photos", {
   sliderPosition: integer("sliderPosition").notNull().default(0),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
+
+export const siteSettings = pgTable("site_settings", {
+  id: text("id").primaryKey().default("site_config"),
+  siteName: text("siteName").notNull().default(""),
+  siteDescription: text("siteDescription").notNull().default(""),
+  contactEmail: text("contactEmail").notNull().default(""),
+  instagramUrl: text("instagramUrl"),
+  facebookUrl: text("facebookUrl"),
+  behanceUrl: text("behanceUrl"),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});

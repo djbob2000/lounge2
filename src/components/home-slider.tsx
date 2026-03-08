@@ -65,7 +65,7 @@ export function HomeSlider({ images }: { images: SliderImage[] }) {
                 type="button"
                 className="bg-primary text-primary-foreground px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-primary/90 transition-all rounded-lg"
               >
-                View Portfolio
+                View
               </button>
             </div>
           )}
