@@ -3,7 +3,7 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { albums } from "@/db/schema";
+import { albums, photos } from "@/db/schema";
 import { deletePublicFile } from "./upload";
 
 export async function createAlbum(categoryId: string, title: string, slug: string) {
@@ -52,12 +52,24 @@ export async function toggleAlbumHidden(id: string, isHidden: boolean) {
 
 export async function deleteAlbum(id: string) {
   try {
-    const album = await db.query.albums.findFirst({ where: eq(albums.id, id) });
+    const album = await db.query.albums.findFirst({
+      where: eq(albums.id, id),
+    });
+
     if (album?.coverImageKey) {
       await deletePublicFile(album.coverImageKey);
     }
-    // Delete action should cascade photos in DB (due to foreign key constraint),
-    // but we would hypothetically need to iterate photos and delete them from R2
+
+    const albumPhotos = await db.query.photos.findMany({
+      where: eq(photos.albumId, id),
+    });
+
+    for (const photo of albumPhotos) {
+      if (photo.r2Key) {
+        await deletePublicFile(photo.r2Key);
+      }
+    }
+
     await db.delete(albums).where(eq(albums.id, id));
     revalidatePath("/admin/albums");
     revalidatePath("/");

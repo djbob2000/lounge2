@@ -3,7 +3,8 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { categories } from "@/db/schema";
+import { categories, albums, photos } from "@/db/schema";
+import { deletePublicFile } from "./upload";
 
 export async function createCategory(name: string, slug: string, showInMenu: boolean = true) {
   try {
@@ -41,6 +42,26 @@ export async function updateCategory(id: string, name: string, slug: string, sho
 
 export async function deleteCategory(id: string) {
   try {
+    const categoryAlbums = await db.query.albums.findMany({
+      where: eq(albums.categoryId, id),
+    });
+
+    for (const album of categoryAlbums) {
+      if (album.coverImageKey) {
+        await deletePublicFile(album.coverImageKey);
+      }
+
+      const albumPhotos = await db.query.photos.findMany({
+        where: eq(photos.albumId, album.id),
+      });
+
+      for (const photo of albumPhotos) {
+        if (photo.r2Key) {
+          await deletePublicFile(photo.r2Key);
+        }
+      }
+    }
+
     await db.delete(categories).where(eq(categories.id, id));
     revalidatePath("/admin/categories");
     revalidatePath("/", "layout");
