@@ -208,9 +208,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
           }}
         >
           <DialogTrigger
-            render={
-              <Button variant="outline" className="flex items-center gap-2 shadow-sm" />
-            }
+            render={<Button variant="outline" className="flex items-center gap-2 shadow-sm" />}
           >
             <Plus className="w-5 h-5" /> Add New Category
           </DialogTrigger>

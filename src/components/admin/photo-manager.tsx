@@ -17,7 +17,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripHorizontal, Image as ImageIcon, Trash2, UploadCloud, Star } from "lucide-react";
+import { GripHorizontal, Image as ImageIcon, Star, Trash2, UploadCloud } from "lucide-react";
 import { useState, useTransition } from "react";
 import {
   deletePhotoDb,

@@ -1,4 +1,5 @@
 import { getSettingsAction } from "@/actions/settings";
+import { AdminHeader } from "@/components/admin/admin-header";
 import { SettingsManager } from "@/components/admin/settings-manager";
 
 export const dynamic = "force-dynamic";
@@ -18,11 +19,7 @@ export default async function AdminSettingsPage() {
 
   return (
     <div className="w-full">
-      <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-4 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold tracking-tight">Global Settings</h2>
-        </div>
-      </header>
+      <AdminHeader title="Global Settings" />
 
       <div className="p-8 max-w-5xl mx-auto">
         <div className="mb-8">

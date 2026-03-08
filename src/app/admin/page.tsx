@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { Image as ImageIcon, Layers, MonitorPlay } from "lucide-react";
 import Link from "next/link";
+import { AdminHeader } from "@/components/admin/admin-header";
 import { Logo } from "@/components/logo";
 import { db } from "@/db";
 import { siteSettings } from "@/db/schema";
@@ -21,25 +22,23 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="w-full">
-      <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-4 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2.5 group cursor-pointer outline-none">
-            <div className="text-primary transform transition-transform group-hover:scale-110 duration-500 ease-out">
-              <Logo className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-xs font-black tracking-[0.2em] group-hover:text-primary transition-colors duration-300 leading-none">
-                {siteName}
-              </h1>
-              <div className="h-[1px] w-4 bg-primary/40 mt-1 transition-all duration-500 group-hover:w-full group-hover:bg-primary"></div>
-            </div>
-          </Link>
-          <div className="h-4 w-px bg-border" />
-          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
-            Dashboard Overview
-          </h2>
-        </div>
-      </header>
+      <AdminHeader>
+        <Link href="/" className="flex items-center gap-2.5 group cursor-pointer outline-none">
+          <div className="text-primary transform transition-transform group-hover:scale-110 duration-500 ease-out">
+            <Logo className="w-5 h-5" />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-xs font-black tracking-[0.2em] group-hover:text-primary transition-colors duration-300 leading-none">
+              {siteName}
+            </h1>
+            <div className="h-[1px] w-4 bg-primary/40 mt-1 transition-all duration-500 group-hover:w-full group-hover:bg-primary"></div>
+          </div>
+        </Link>
+        <div className="h-4 w-px bg-border hidden sm:block" />
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-widest hidden sm:block">
+          Dashboard Overview
+        </h2>
+      </AdminHeader>
 
       <div className="p-8 max-w-5xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">

@@ -1,4 +1,5 @@
 import { asc } from "drizzle-orm";
+import { AdminHeader } from "@/components/admin/admin-header";
 import { AlbumManager } from "@/components/admin/album-manager";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
@@ -15,11 +16,7 @@ export default async function AdminAlbumsPage() {
 
   return (
     <div className="w-full">
-      <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-4 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold tracking-tight">Albums Management</h2>
-        </div>
-      </header>
+      <AdminHeader title="Albums Management" />
 
       <div className="p-8 max-w-5xl mx-auto">
         <AlbumManager initialAlbums={allAlbums} categories={allCategories} />

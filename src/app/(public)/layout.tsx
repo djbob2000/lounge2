@@ -19,7 +19,7 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground font-display selection:bg-primary/20">
-      <header className="flex flex-col items-center pt-12 pb-8 px-6 backdrop-blur-sm sticky top-0 z-40 bg-background/80 transition-colors">
+      <header className="flex flex-col items-center pt-12 pb-8 px-6 transition-colors">
         <Link
           href="/"
           className="flex flex-col items-center gap-2 mb-10 group cursor-pointer outline-none"

@@ -1,4 +1,5 @@
 import { asc } from "drizzle-orm";
+import { AdminHeader } from "@/components/admin/admin-header";
 import { CategoryManager } from "@/components/admin/category-manager";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
@@ -10,11 +11,7 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div className="w-full">
-      <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-4 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold tracking-tight">Categories Management</h2>
-        </div>
-      </header>
+      <AdminHeader title="Categories Management" />
 
       <div className="p-8 max-w-5xl mx-auto">
         <CategoryManager initialCategories={allCategories} />
